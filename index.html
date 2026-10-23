@@ -39,7 +39,7 @@ small,.hint{color:var(--muted)}.table-wrap{overflow-x:auto}.availability{border-
     <label for="comments">Comments for your manager (optional)</label>
     <textarea id="comments" rows="3" placeholder="Add any notes, preferred shifts, or restrictions…"></textarea>
     <div class="actions">
-      <button class="secondary" id="copy">Copy availability text</button>
+      <button class="primary" id="copy">Send Availability</button>
       <button class="secondary" id="clearAll">Clear all days</button>
     </div>
     <p class="hint" id="status" aria-live="polite">This form does not automatically save or send submissions. Use WhatsApp to send your availability to your manager.</p>
@@ -180,20 +180,10 @@ function availabilityText() {
   return out.join("\n");
 }
 function showError(error) { document.getElementById("status").textContent = error.message || "Something went wrong."; }
-document.getElementById("copy").addEventListener("click", async () => {
-  try {
-    const msg = availabilityText();
-    try { await navigator.clipboard.writeText(msg); }
-    catch (_) {
-      const area = document.createElement("textarea");
-      area.value = msg;
-      document.body.append(area);
-      area.select();
-      document.execCommand("copy");
-      area.remove();
-    }
-    document.getElementById("status").textContent = "Availability text copied. Paste it into WhatsApp or another message.";
-  } catch (error) { showError(error); }
+document.getElementById("copy").addEventListener("click", () => {
+  const msg = availabilityText();
+  const whatsappUrl = "https://wa.me/12268832915?text=" + encodeURIComponent(msg);
+  window.open(whatsappUrl, "_blank", "noopener,noreferrer");
 });
 document.getElementById("clearAll").addEventListener("click", () => {
   selected.forEach(set => set.clear());
