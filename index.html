@@ -61,12 +61,6 @@ function build() {
   const dayHead = document.createElement("th");
   dayHead.textContent = "Day";
   headRow.append(dayHead);
-  hours.forEach(([from,to]) => {
-    const th = document.createElement("th");
-    th.textContent = from;
-    th.title = from + " to " + to;
-    headRow.append(th);
-  });
   const toolsHead = document.createElement("th");
   toolsHead.textContent = "Day tools";
   headRow.append(toolsHead);
