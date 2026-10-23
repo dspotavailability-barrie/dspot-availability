@@ -40,7 +40,6 @@ small,.hint{color:var(--muted)}.table-wrap{overflow-x:auto}.availability{border-
     <textarea id="comments" rows="3" placeholder="Add any notes, preferred shifts, or restrictions…"></textarea>
     <div class="actions">
       <button class="primary" id="share">Prepare WhatsApp message</button>
-      <button class="secondary" id="copy">Copy availability text</button>
       <button class="secondary" id="clearAll">Clear all days</button>
     </div>
     <p class="hint" id="status" aria-live="polite">This form does not automatically save or send submissions. Use WhatsApp to send your availability to your manager.</p>
@@ -186,21 +185,6 @@ document.getElementById("share").addEventListener("click", () => {
     const msg = availabilityText();
     document.getElementById("status").textContent = "Opening WhatsApp with your availability message. Choose your manager or group to send it.";
     window.open("https://wa.me/12268832915?text="+encodeURIComponent(msg), "_blank", "noopener,noreferrer");
-  } catch (error) { showError(error); }
-});
-document.getElementById("copy").addEventListener("click", async () => {
-  try {
-    const msg = availabilityText();
-    try { await navigator.clipboard.writeText(msg); }
-    catch (_) {
-      const area = document.createElement("textarea");
-      area.value = msg;
-      document.body.append(area);
-      area.select();
-      document.execCommand("copy");
-      area.remove();
-    }
-    document.getElementById("status").textContent = "Availability text copied. Paste it into WhatsApp or another message.";
   } catch (error) { showError(error); }
 });
 document.getElementById("clearAll").addEventListener("click", () => {
