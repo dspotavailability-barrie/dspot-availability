@@ -13,17 +13,21 @@ h1{margin:0 0 6px;font-size:clamp(24px,4vw,34px)}.header p{margin:0;color:#dcebe
 .fields{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}label{display:block;font-weight:650;margin-bottom:5px}input,textarea,select{font:inherit;width:100%;padding:11px;border:1px solid #cbd7cf;border-radius:9px;background:white;color:inherit}
 small,.hint{color:var(--muted)}.table-wrap{overflow-x:auto}.availability{border-collapse:separate;border-spacing:4px;width:100%;min-width:750px}.availability th{font-size:12px;color:var(--muted);font-weight:700;padding:8px 3px}.availability th:first-child{min-width:112px;text-align:left}.availability td:first-child{font-weight:700;font-size:13px;white-space:nowrap;padding:4px}
 .slot{display:block;width:100%;min-width:27px;height:34px;border:1px solid #d7e1da;border-radius:7px;background:#f3f6f4;cursor:pointer;color:#718078;font-size:13px}.slot.on{background:var(--green);color:white;border-color:var(--green);font-weight:800}.slot:focus-visible,button:focus-visible{outline:3px solid #82b7f5;outline-offset:2px}
-.daytools{display:flex;gap:5px}.mini{font-size:11px;padding:5px 7px;border:1px solid var(--line);background:white;border-radius:6px;cursor:pointer}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}button.primary,button.secondary{border:0;border-radius:10px;padding:12px 16px;font:inherit;font-weight:750;cursor:pointer}.primary{background:var(--green);color:white}.secondary{background:#eaf0ec;color:#24382c}.legend{display:flex;gap:14px;align-items:center;font-size:13px;color:var(--muted);margin:8px 0 14px}.swatch{display:inline-block;width:13px;height:13px;border-radius:4px;vertical-align:-2px;margin-right:5px}.footer{font-size:12px;color:var(--muted);text-align:center;padding:10px}
-@media(max-width:650px){main{margin:12px auto}.header{padding:19px}.panel{padding:13px}.fields{grid-template-columns:1fr}.availability{min-width:720px}}
+.daytools{display:flex;gap:5px}.mini{font-size:11px;padding:5px 7px;border:1px solid var(--line);background:white;border-radius:6px;cursor:pointer}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}button.primary,button.secondary{border:0;border-radius:10px;padding:12px 16px;font:inherit;font-weight:750;cursor:pointer}.primary{background:var(--green);color:white}.secondary{background:#eaf0ec;color:#24382c}.legend{display:flex;gap:14px;align-items:center;font-size:13px;color:var(--muted);margin:8px 0 14px}.swatch{display:inline-block;width:13px;height:13px;border-radius:4px;vertical-align:-2px;margin-right:5px}.deadline{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;align-items:center}.deadline h2{margin:0 0 4px;font-size:19px}.countdown{font-size:clamp(24px,4vw,36px);font-weight:850;letter-spacing:.03em;color:#173c2b;font-variant-numeric:tabular-nums}.deadline-date,.week-range{font-weight:750;color:#173c2b}.footer{font-size:12px;color:var(--muted);text-align:center;padding:10px}
+@media(max-width:650px){main{margin:12px auto}.header{padding:19px}.panel{padding:13px}.fields{grid-template-columns:1fr}.deadline{grid-template-columns:1fr}.availability{min-width:720px}}
 </style>
 </head>
 <body>
 <main>
   <header class="header"><h1>D-Spot Dessert Café</h1><p>Weekly staff availability · Select every hour you are able to work.</p></header>
+  <section class="panel deadline" aria-live="polite">
+    <div><h2>Next week’s availability deadline</h2><div class="deadline-date" id="deadlineDate">Friday at 4:00 PM</div><p class="hint" id="weekRange">Availability for next Monday–Sunday</p></div>
+    <div><div class="countdown" id="countdown">Calculating…</div><div class="hint" id="deadlineStatus">Time remaining until submissions are due (Toronto time).</div></div>
+  </section>
   <section class="panel">
     <div class="fields">
       <div><label for="name">Full name *</label><input id="name" autocomplete="name" placeholder="Enter your full name" required></div>
-      <div><label for="week">Week starting (Monday) *</label><input id="week" type="date" required></div>
+      <div><label>Week covered</label><div class="week-range" id="weekDisplay">Calculating next week…</div><small>The form automatically uses next Monday through Sunday.</small></div>
     </div>
     <p class="hint">Green with a check means available. Select an hour to toggle it on or off. You can also fill or clear an entire day.</p>
   </section>
@@ -78,13 +82,27 @@ function build(){
 function toggle(d,h){if(selected[d].has(h))selected[d].delete(h);else selected[d].add(h);refresh()}
 function refresh(){[...grid.querySelectorAll("tbody tr")].forEach((tr,d)=>[...tr.querySelectorAll("button.slot")].forEach((b,h)=>{const on=selected[d].has(h);b.classList.toggle("on",on);b.textContent=on?"✓":"";b.setAttribute("aria-pressed",String(on))}))}
 function mondayISO(date){const d=new Date(date+"T12:00:00");const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
-const today=new Date();const iso=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;document.getElementById("week").value=mondayISO(iso);
-document.getElementById("week").addEventListener("change",e=>{if(e.target.value)e.target.value=mondayISO(e.target.value)});
+function dateISO(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
+function nextMonday(){const now=new Date();const d=new Date(now.getFullYear(),now.getMonth(),now.getDate(),12);const sinceMonday=(d.getDay()+6)%7;d.setDate(d.getDate()-sinceMonday+7);return d}
+function getWeekStart(){return dateISO(nextMonday())}
+function updateDeadline(){
+ const monday=nextMonday(),sunday=new Date(monday);sunday.setDate(monday.getDate()+6);
+ const deadline=new Date(monday);deadline.setDate(monday.getDate()-3);deadline.setHours(16,0,0,0);
+ const fmt={month:"short",day:"numeric",year:"numeric"};
+ document.getElementById("weekRange").textContent=`For ${monday.toLocaleDateString(undefined,fmt)} – ${sunday.toLocaleDateString(undefined,fmt)}`;
+ document.getElementById("weekDisplay").textContent=`${monday.toLocaleDateString(undefined,fmt)} – ${sunday.toLocaleDateString(undefined,fmt)}`;
+ document.getElementById("deadlineDate").textContent=`${deadline.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})} at 4:00 PM`;
+ const diff=deadline.getTime()-Date.now(),count=document.getElementById("countdown"),status=document.getElementById("deadlineStatus");
+ if(diff<=0){count.textContent="Deadline passed";status.textContent="The deadline for this upcoming week has passed. Please send your availability as soon as possible.";}
+ else {const total=Math.floor(diff/1000),days=Math.floor(total/86400),hours=Math.floor((total%86400)/3600),mins=Math.floor((total%3600)/60),secs=total%60;count.textContent=days>0?`${days}d ${hours}h ${mins}m ${secs}s`:`${hours}h ${mins}m ${secs}s`;status.textContent="Time remaining until Friday at 4:00 PM (Toronto time).";}
+}
+updateDeadline();setInterval(updateDeadline,1000);
 function fmtDate(iso){if(!iso)return "Not selected";return new Date(iso+"T12:00:00").toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"})}
 function availabilityText(){
- const name=document.getElementById("name").value.trim(),week=document.getElementById("week").value,comments=document.getElementById("comments").value.trim();
- if(!name){document.getElementById("name").focus();throw Error("Please enter your full name.")}if(!week)throw Error("Please choose the week starting date.");
- let out=["D-SPOT DESSERT CAFÉ — WEEKLY AVAILABILITY",`Employee: ${name}`,`Week starting: ${fmtDate(week)}`,""];
+ const name=document.getElementById("name").value.trim(),week=getWeekStart(),comments=document.getElementById("comments").value.trim();
+ if(!name){document.getElementById("name").focus();throw Error("Please enter your full name.")}
+ const weekEnd=new Date(week+"T12:00:00");weekEnd.setDate(weekEnd.getDate()+6);
+ let out=["D-SPOT DESSERT CAFÉ — WEEKLY AVAILABILITY",`Employee: ${name}`,`Week: ${fmtDate(week)} – ${fmtDate(dateISO(weekEnd))}`,""];
  days.forEach((day,d)=>{const picks=[...selected[d]].sort((a,b)=>a-b);if(!picks.length){out.push(`${day}: No hours selected`);return}
  const ranges=[];let start=picks[0],prev=picks[0];for(let i=1;i<=picks.length;i++){if(i<picks.length&&picks[i]===prev+1){prev=picks[i];continue}ranges.push(`${hours[start][0]}–${hours[prev][1]}`);if(i<picks.length)start=prev=picks[i]}out.push(`${day}: ${ranges.join(", ")}`)});
  if(comments)out.push("",`Comments: ${comments}`);return out.join("\n");
