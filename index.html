@@ -152,11 +152,11 @@ function updateDeadline() {
   // Before Friday's 5 PM switchover, the deadline is the upcoming Friday.
   // After switchover, the new week's deadline is the Friday that just passed.
   deadline.setDate(deadline.getDate() - (now.getDay() === 5 && now.getHours() >= 17 ? 10 : 3));
-  deadline.setHours(16,0,0,0);
+  deadline.setHours(13,0,0,0);
   const fmt = {month:"short",day:"numeric",year:"numeric"};
   document.getElementById("weekRange").textContent = "For " + monday.toLocaleDateString(undefined,fmt) + " – " + sunday.toLocaleDateString(undefined,fmt);
   document.getElementById("weekDisplay").textContent = monday.toLocaleDateString(undefined,fmt) + " – " + sunday.toLocaleDateString(undefined,fmt);
-  document.getElementById("deadlineDate").textContent = deadline.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"}) + " at 4:00 PM";
+  document.getElementById("deadlineDate").textContent = deadline.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"}) + " at 1:00 PM";
   const diff = deadline.getTime()-Date.now();
   const count = document.getElementById("countdown");
   const status = document.getElementById("deadlineStatus");
@@ -167,7 +167,7 @@ function updateDeadline() {
     const total = Math.floor(diff/1000);
     const dd = Math.floor(total/86400), hh = Math.floor((total%86400)/3600), mm = Math.floor((total%3600)/60), ss = total%60;
     count.textContent = dd > 0 ? dd+"d "+hh+"h "+mm+"m "+ss+"s" : hh+"h "+mm+"m "+ss+"s";
-    status.textContent = "Time remaining until Friday at 4:00 PM (Toronto time).";
+    status.textContent = "Time remaining until Friday at 1:00 PM (Toronto time).";
   }
 }
 function availabilityText() {
