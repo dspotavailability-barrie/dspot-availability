@@ -39,7 +39,6 @@ small,.hint{color:var(--muted)}.table-wrap{overflow-x:auto}.availability{border-
     <label for="comments">Comments for your manager (optional)</label>
     <textarea id="comments" rows="3" placeholder="Add any notes, preferred shifts, or restrictions…"></textarea>
     <div class="actions">
-      <button class="primary" id="share">Prepare WhatsApp message</button>
       <button class="secondary" id="copy">Copy availability text</button>
       <button class="secondary" id="clearAll">Clear all days</button>
     </div>
@@ -181,13 +180,6 @@ function availabilityText() {
   return out.join("\n");
 }
 function showError(error) { document.getElementById("status").textContent = error.message || "Something went wrong."; }
-document.getElementById("share").addEventListener("click", () => {
-  try {
-    const msg = availabilityText();
-    document.getElementById("status").textContent = "Opening WhatsApp with your availability message. Choose your manager or group to send it.";
-    window.open("https://wa.me/12268832915?text="+encodeURIComponent(msg), "_blank", "noopener,noreferrer");
-  } catch (error) { showError(error); }
-});
 document.getElementById("copy").addEventListener("click", async () => {
   try {
     const msg = availabilityText();
