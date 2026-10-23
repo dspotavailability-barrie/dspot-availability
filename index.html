@@ -50,6 +50,7 @@ small,.hint{color:var(--muted)}.table-wrap{overflow-x:auto}.availability{border-
 const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 const hours = [["1 PM","2 PM"],["2 PM","3 PM"],["3 PM","4 PM"],["4 PM","5 PM"],["5 PM","6 PM"],["6 PM","7 PM"],["7 PM","8 PM"],["8 PM","9 PM"],["9 PM","10 PM"],["10 PM","11 PM"],["11 PM","12 AM"],["12 AM","1 AM"]];
 const selected = days.map(() => new Set());
+const dayComments = days.map(() => "");
 const grid = document.getElementById("grid");
 const shortHour = (from, to) => from.replace(" PM","").replace(" AM","") + "-" + to.replace(" PM","").replace(" AM","");
 function build() {
@@ -96,6 +97,20 @@ function build() {
       });
       tools.append(button);
     });
+    const commentButton = document.createElement("button");
+    commentButton.type = "button";
+    commentButton.className = "mini";
+    commentButton.textContent = "Comment";
+    commentButton.title = "Add a comment for " + day;
+    commentButton.addEventListener("click", () => {
+      const value = window.prompt("Comment for " + day + " (leave blank to remove):", dayComments[d]);
+      if (value !== null) {
+        dayComments[d] = value.trim();
+        commentButton.textContent = dayComments[d] ? "Comment ✓" : "Comment";
+        commentButton.title = dayComments[d] ? dayComments[d] : "Add a comment for " + day;
+      }
+    });
+    tools.append(commentButton);
     toolsCell.append(tools);
     row.append(toolsCell);
     tbody.append(row);
@@ -165,7 +180,8 @@ function availabilityText() {
   const out = ["D-SPOT DESSERT CAFÉ — WEEKLY AVAILABILITY","Employee: "+name,"Week: "+fmtDate(week)+" – "+fmtDate(dateISO(weekEnd)),""];
   days.forEach((day,d) => {
     const picks = [...selected[d]].sort((a,b)=>a-b);
-    if (!picks.length) { out.push(day+": No hours selected"); return; }
+    if (!picks.length) out.push(day+": No hours selected");
+    else {
     const ranges = [];
     let startHour = picks[0], prev = picks[0];
     for (let i=1; i<=picks.length; i++) {
@@ -174,8 +190,10 @@ function availabilityText() {
       if (i<picks.length) { startHour=picks[i]; prev=picks[i]; }
     }
     out.push(day+": "+ranges.join(", "));
+    }
+    if (dayComments[d]) out.push("  Comment: "+dayComments[d]);
   });
-  if (comments) out.push("", "Comments: "+comments);
+  if (comments) out.push("", "General comments: "+comments);
   return out.join("\n");
 }
 function showError(error) { document.getElementById("status").textContent = error.message || "Something went wrong."; }
