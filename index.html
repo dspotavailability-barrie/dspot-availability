@@ -49,70 +49,178 @@ small,.hint{color:var(--muted)}.table-wrap{overflow-x:auto}.availability{border-
   <div class="footer">D-Spot staff scheduling helper · Free standalone form</div>
 </main>
 <script>
-const days=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
-// Availability slots run from 1 PM through 1 AM the following day.
-const hours = [
-  ["1 PM", "2 PM"],
-  ["2 PM", "3 PM"],
-  ["3 PM", "4 PM"],
-  ["4 PM", "5 PM"],
-  ["5 PM", "6 PM"],
-  ["6 PM", "7 PM"],
-  ["7 PM", "8 PM"],
-  ["8 PM", "9 PM"],
-  ["9 PM", "10 PM"],
-  ["10 PM", "11 PM"],
-  ["11 PM", "12 AM"],
-  ["12 AM", "1 AM"]
-];
-const selected=days.map(()=>new Set());
-const grid=document.getElementById("grid");
-function shortHour(label){return label.replace(" PM","p").replace(" AM","a")}
-function build(){
- const thead=document.createElement("thead"), hr=document.createElement("tr");
- const first=document.createElement("th");first.textContent="Day";hr.append(first);
- hours.forEach(h=>{const th=document.createElement("th");th.textContent=h[0];th.title=h[0]+" to "+h[1];hr.append(th)});
- const tools=document.createElement("th");tools.textContent="Day tools";hr.append(tools);thead.append(hr);grid.append(thead);
- const tbody=document.createElement("tbody");
- days.forEach((day,di)=>{const tr=document.createElement("tr"),name=document.createElement("td");name.textContent=day;tr.append(name);
- hours.forEach((h,hi)=>{const td=document.createElement("td"),b=document.createElement("button");b.type="button";b.className="slot";b.setAttribute("aria-label",`${day}, ${h[0]} to ${h[1]}`);b.title=`${h[0]}–${h[1]}`;b.textContent=shortHour(h[0]);b.setAttribute("aria-label",`${day}, ${h[0]} to ${h[1]}`);b.addEventListener("click",()=>toggle(di,hi,b));td.append(b);tr.append(td)});
- const td=document.createElement("td"),wrap=document.createElement("div");wrap.className="daytools";
- [["All",true],["Clear",false]].forEach(([label,on])=>{const b=document.createElement("button");b.type="button";b.className="mini";b.textContent=label;b.addEventListener("click",()=>{selected[di]=on?new Set(hours.map((_,i)=>i)):new Set();refresh()});wrap.append(b)});td.append(wrap);tr.append(td);tbody.append(tr)});
- grid.append(tbody);refresh();
+"use strict";
+const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+const hours = [["1 PM","2 PM"],["2 PM","3 PM"],["3 PM","4 PM"],["4 PM","5 PM"],["5 PM","6 PM"],["6 PM","7 PM"],["7 PM","8 PM"],["8 PM","9 PM"],["9 PM","10 PM"],["10 PM","11 PM"],["11 PM","12 AM"],["12 AM","1 AM"]];
+const selected = days.map(() => new Set());
+const grid = document.getElementById("grid");
+const shortHour = label => label.replace(" PM","p").replace(" AM","a");
+function build() {
+  const thead = document.createElement("thead");
+  const headRow = document.createElement("tr");
+  const dayHead = document.createElement("th");
+  dayHead.textContent = "Day";
+  headRow.append(dayHead);
+  hours.forEach(([from,to]) => {
+    const th = document.createElement("th");
+    th.textContent = from;
+    th.title = from + " to " + to;
+    headRow.append(th);
+  });
+  const toolsHead = document.createElement("th");
+  toolsHead.textContent = "Day tools";
+  headRow.append(toolsHead);
+  thead.append(headRow);
+  const tbody = document.createElement("tbody");
+  days.forEach((day, d) => {
+    const row = document.createElement("tr");
+    const dayCell = document.createElement("td");
+    dayCell.textContent = day;
+    row.append(dayCell);
+    hours.forEach(([from,to], h) => {
+      const cell = document.createElement("td");
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "slot";
+      button.textContent = shortHour(from);
+      button.title = from + "–" + to;
+      button.setAttribute("aria-label", day + ", " + from + " to " + to);
+      button.setAttribute("aria-pressed", "false");
+      button.addEventListener("click", () => {
+        if (selected[d].has(h)) selected[d].delete(h);
+        else selected[d].add(h);
+        refresh();
+      });
+      cell.append(button);
+      row.append(cell);
+    });
+    const toolsCell = document.createElement("td");
+    const tools = document.createElement("div");
+    tools.className = "daytools";
+    [["All", true], ["Clear", false]].forEach(([label, turnOn]) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "mini";
+      button.textContent = label;
+      button.addEventListener("click", () => {
+        selected[d] = turnOn ? new Set(hours.map((_, i) => i)) : new Set();
+        refresh();
+      });
+      tools.append(button);
+    });
+    toolsCell.append(tools);
+    row.append(toolsCell);
+    tbody.append(row);
+  });
+  grid.replaceChildren(thead, tbody);
+  refresh();
 }
-function toggle(d,h){if(selected[d].has(h))selected[d].delete(h);else selected[d].add(h);refresh()}
-function refresh(){[...grid.querySelectorAll("tbody tr")].forEach((tr,d)=>[...tr.querySelectorAll("button.slot")].forEach((b,h)=>{const on=selected[d].has(h);b.classList.toggle("on",on);b.textContent=on?"✓ "+shortHour(hours[h][0]):shortHour(hours[h][0]);b.setAttribute("aria-pressed",String(on))}))}
-function mondayISO(date){const d=new Date(date+"T12:00:00");const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
-function dateISO(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
-function nextMonday(){const now=new Date();const d=new Date(now.getFullYear(),now.getMonth(),now.getDate(),12);const sinceMonday=(d.getDay()+6)%7;d.setDate(d.getDate()-sinceMonday);if(now.getDay()===5&&now.getHours()>=16&&now.getMinutes()>=30){d.setDate(d.getDate()+10)}else{d.setDate(d.getDate()+7)}return d}
-function getWeekStart(){return dateISO(nextMonday())}
-function updateDeadline(){
- const monday=nextMonday(),sunday=new Date(monday);sunday.setDate(monday.getDate()+6);
- const deadline=new Date(monday);deadline.setDate(monday.getDate()-3);deadline.setHours(16,0,0,0);
- const fmt={month:"short",day:"numeric",year:"numeric"};
- document.getElementById("weekRange").textContent=`For ${monday.toLocaleDateString(undefined,fmt)} – ${sunday.toLocaleDateString(undefined,fmt)}`;
- document.getElementById("weekDisplay").textContent=`${monday.toLocaleDateString(undefined,fmt)} – ${sunday.toLocaleDateString(undefined,fmt)}`;
- document.getElementById("deadlineDate").textContent=`${deadline.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})} at 4:00 PM`;
- const diff=deadline.getTime()-Date.now(),count=document.getElementById("countdown"),status=document.getElementById("deadlineStatus");
- if(diff<=0){count.textContent="Deadline passed";status.textContent="The deadline for this upcoming week has passed. Please send your availability as soon as possible.";}
- else {const total=Math.floor(diff/1000),days=Math.floor(total/86400),hours=Math.floor((total%86400)/3600),mins=Math.floor((total%3600)/60),secs=total%60;count.textContent=days>0?`${days}d ${hours}h ${mins}m ${secs}s`:`${hours}h ${mins}m ${secs}s`;status.textContent="Time remaining until Friday at 4:00 PM (Toronto time).";}
+function refresh() {
+  grid.querySelectorAll("tbody tr").forEach((row, d) => {
+    row.querySelectorAll("button.slot").forEach((button, h) => {
+      const on = selected[d].has(h);
+      button.classList.toggle("on", on);
+      button.textContent = (on ? "✓ " : "") + shortHour(hours[h][0]);
+      button.setAttribute("aria-pressed", String(on));
+    });
+  });
 }
-updateDeadline();setInterval(updateDeadline,1000);
-function fmtDate(iso){if(!iso)return "Not selected";return new Date(iso+"T12:00:00").toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"})}
-function availabilityText(){
- const name=document.getElementById("name").value.trim(),week=getWeekStart(),comments=document.getElementById("comments").value.trim();
- if(!name){document.getElementById("name").focus();throw Error("Please enter your full name.")}
- const weekEnd=new Date(week+"T12:00:00");weekEnd.setDate(weekEnd.getDate()+6);
- let out=["D-SPOT DESSERT CAFÉ — WEEKLY AVAILABILITY",`Employee: ${name}`,`Week: ${fmtDate(week)} – ${fmtDate(dateISO(weekEnd))}`,""];
- days.forEach((day,d)=>{const picks=[...selected[d]].sort((a,b)=>a-b);if(!picks.length){out.push(`${day}: No hours selected`);return}
- const ranges=[];let start=picks[0],prev=picks[0];for(let i=1;i<=picks.length;i++){if(i<picks.length&&picks[i]===prev+1){prev=picks[i];continue}ranges.push(`${hours[start][0]}–${hours[prev][1]}`);if(i<picks.length)start=prev=picks[i]}out.push(`${day}: ${ranges.join(", ")}`)});
- if(comments)out.push("",`Comments: ${comments}`);return out.join("\n");
+function dateISO(date) {
+  return date.getFullYear() + "-" + String(date.getMonth()+1).padStart(2,"0") + "-" + String(date.getDate()).padStart(2,"0");
 }
-function showError(err){document.getElementById("status").textContent=err.message}
-document.getElementById("share").addEventListener("click",()=>{try{const msg=availabilityText();document.getElementById("status").textContent="Opening WhatsApp with your availability message. Choose your manager or group to send it.";window.open("https://wa.me/12268832915?text="+encodeURIComponent(msg),"_blank","noopener,noreferrer")}catch(e){showError(e)}});
-document.getElementById("copy").addEventListener("click",async()=>{try{const msg=availabilityText();await navigator.clipboard.writeText(msg);document.getElementById("status").textContent="Availability text copied. Paste it into WhatsApp or another message."}catch(e){try{const t=document.createElement("textarea");t.value=availabilityText();document.body.append(t);t.select();document.execCommand("copy");t.remove();document.getElementById("status").textContent="Availability text copied. Paste it into WhatsApp."}catch(err){showError(err)}}});
-document.getElementById("clearAll").addEventListener("click",()=>{selected.forEach(s=>s.clear());refresh();document.getElementById("status").textContent="All availability selections cleared."});
+function nextMonday() {
+  const now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12);
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  if (now.getDay() === 5 && (now.getHours() > 16 || (now.getHours() === 16 && now.getMinutes() >= 30))) d.setDate(d.getDate() + 14);
+  else d.setDate(d.getDate() + 7);
+  return d;
+}
+function getWeekStart() { return dateISO(nextMonday()); }
+function fmtDate(iso) {
+  return new Date(iso + "T12:00:00").toLocaleDateString(undefined, {year:"numeric",month:"short",day:"numeric"});
+}
+function updateDeadline() {
+  const monday = nextMonday();
+  const sunday = new Date(monday);
+  sunday.setDate(sunday.getDate()+6);
+  const deadline = new Date(monday);
+  deadline.setDate(deadline.getDate()-3);
+  deadline.setHours(16,0,0,0);
+  const fmt = {month:"short",day:"numeric",year:"numeric"};
+  document.getElementById("weekRange").textContent = "For " + monday.toLocaleDateString(undefined,fmt) + " – " + sunday.toLocaleDateString(undefined,fmt);
+  document.getElementById("weekDisplay").textContent = monday.toLocaleDateString(undefined,fmt) + " – " + sunday.toLocaleDateString(undefined,fmt);
+  document.getElementById("deadlineDate").textContent = deadline.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"}) + " at 4:00 PM";
+  const diff = deadline.getTime()-Date.now();
+  const count = document.getElementById("countdown");
+  const status = document.getElementById("deadlineStatus");
+  if (diff <= 0) {
+    count.textContent = "Deadline passed";
+    status.textContent = "The deadline for this upcoming week has passed. Please send your availability as soon as possible.";
+  } else {
+    const total = Math.floor(diff/1000);
+    const dd = Math.floor(total/86400), hh = Math.floor((total%86400)/3600), mm = Math.floor((total%3600)/60), ss = total%60;
+    count.textContent = dd > 0 ? dd+"d "+hh+"h "+mm+"m "+ss+"s" : hh+"h "+mm+"m "+ss+"s";
+    status.textContent = "Time remaining until Friday at 4:00 PM (Toronto time).";
+  }
+}
+function availabilityText() {
+  const name = document.getElementById("name").value.trim();
+  const comments = document.getElementById("comments").value.trim();
+  if (!name) {
+    document.getElementById("name").focus();
+    throw new Error("Please enter your full name.");
+  }
+  const week = getWeekStart();
+  const weekEnd = new Date(week+"T12:00:00");
+  weekEnd.setDate(weekEnd.getDate()+6);
+  const out = ["D-SPOT DESSERT CAFÉ — WEEKLY AVAILABILITY","Employee: "+name,"Week: "+fmtDate(week)+" – "+fmtDate(dateISO(weekEnd)),""];
+  days.forEach((day,d) => {
+    const picks = [...selected[d]].sort((a,b)=>a-b);
+    if (!picks.length) { out.push(day+": No hours selected"); return; }
+    const ranges = [];
+    let startHour = picks[0], prev = picks[0];
+    for (let i=1; i<=picks.length; i++) {
+      if (i<picks.length && picks[i]===prev+1) { prev=picks[i]; continue; }
+      ranges.push(hours[startHour][0]+"–"+hours[prev][1]);
+      if (i<picks.length) { startHour=picks[i]; prev=picks[i]; }
+    }
+    out.push(day+": "+ranges.join(", "));
+  });
+  if (comments) out.push("", "Comments: "+comments);
+  return out.join("\n");
+}
+function showError(error) { document.getElementById("status").textContent = error.message || "Something went wrong."; }
+document.getElementById("share").addEventListener("click", () => {
+  try {
+    const msg = availabilityText();
+    document.getElementById("status").textContent = "Opening WhatsApp with your availability message. Choose your manager or group to send it.";
+    window.open("https://wa.me/12268832915?text="+encodeURIComponent(msg), "_blank", "noopener,noreferrer");
+  } catch (error) { showError(error); }
+});
+document.getElementById("copy").addEventListener("click", async () => {
+  try {
+    const msg = availabilityText();
+    try { await navigator.clipboard.writeText(msg); }
+    catch (_) {
+      const area = document.createElement("textarea");
+      area.value = msg;
+      document.body.append(area);
+      area.select();
+      document.execCommand("copy");
+      area.remove();
+    }
+    document.getElementById("status").textContent = "Availability text copied. Paste it into WhatsApp or another message.";
+  } catch (error) { showError(error); }
+});
+document.getElementById("clearAll").addEventListener("click", () => {
+  selected.forEach(set => set.clear());
+  refresh();
+  document.getElementById("status").textContent = "All availability selections cleared.";
+});
 build();
+updateDeadline();
+setInterval(updateDeadline, 1000);
 </script>
 </body>
 </html>
