@@ -67,7 +67,8 @@ const hours = [
 ];
 const selected=days.map(()=>new Set());
 const grid=document.getElementById("grid");
-function shortHour(label){return label.replace(" PM","p").replace(" AM","a")}\nfunction build(){
+function shortHour(label){return label.replace(" PM","p").replace(" AM","a")}
+function build(){
  const thead=document.createElement("thead"), hr=document.createElement("tr");
  const first=document.createElement("th");first.textContent="Day";hr.append(first);
  hours.forEach(h=>{const th=document.createElement("th");th.textContent=h[0];th.title=h[0]+" to "+h[1];hr.append(th)});
