@@ -21,7 +21,7 @@ small,.hint{color:var(--muted)}.table-wrap{overflow-x:auto}.availability{border-
 <main>
   <header class="header"><h1>D-Spot Dessert Café (Barrie)</h1><p>Weekly staff availability · Select every hour you are able to work.</p></header>
   <section class="panel deadline" aria-live="polite">
-    <div><h2>Next week’s availability deadline</h2><div class="deadline-date" id="deadlineDate">Friday at 4:00 PM</div><p class="hint" id="weekRange">Availability for next Monday–Sunday</p></div>
+    <div><h2>Next week’s availability deadline</h2><div class="deadline-date" id="deadlineDate">Friday at 4:59 PM</div><p class="hint" id="weekRange">Availability for next Monday–Sunday</p></div>
     <div><div class="countdown" id="countdown">Calculating…</div><div class="hint" id="deadlineStatus">Time remaining until submissions are due (Toronto time).</div></div>
   </section>
   <section class="panel">
@@ -120,7 +120,7 @@ function nextMonday() {
   const now = new Date();
   const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12);
   d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-  if (now.getDay() === 5 && (now.getHours() > 16 || (now.getHours() === 16 && now.getMinutes() >= 30))) d.setDate(d.getDate() + 14);
+  if (now.getDay() === 5 && (now.getHours() > 16 || (now.getHours() === 16 && now.getMinutes() >= 59))) d.setDate(d.getDate() + 14);
   else d.setDate(d.getDate() + 7);
   return d;
 }
@@ -134,11 +134,11 @@ function updateDeadline() {
   sunday.setDate(sunday.getDate()+6);
   const deadline = new Date(monday);
   deadline.setDate(deadline.getDate()-3);
-  deadline.setHours(16,0,0,0);
+  deadline.setHours(16,59,0,0);
   const fmt = {month:"short",day:"numeric",year:"numeric"};
   document.getElementById("weekRange").textContent = "For " + monday.toLocaleDateString(undefined,fmt) + " – " + sunday.toLocaleDateString(undefined,fmt);
   document.getElementById("weekDisplay").textContent = monday.toLocaleDateString(undefined,fmt) + " – " + sunday.toLocaleDateString(undefined,fmt);
-  document.getElementById("deadlineDate").textContent = deadline.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"}) + " at 4:00 PM";
+  document.getElementById("deadlineDate").textContent = deadline.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"}) + " at 4:59 PM";
   const diff = deadline.getTime()-Date.now();
   const count = document.getElementById("countdown");
   const status = document.getElementById("deadlineStatus");
@@ -149,7 +149,7 @@ function updateDeadline() {
     const total = Math.floor(diff/1000);
     const dd = Math.floor(total/86400), hh = Math.floor((total%86400)/3600), mm = Math.floor((total%3600)/60), ss = total%60;
     count.textContent = dd > 0 ? dd+"d "+hh+"h "+mm+"m "+ss+"s" : hh+"h "+mm+"m "+ss+"s";
-    status.textContent = "Time remaining until Friday at 4:00 PM (Toronto time).";
+    status.textContent = "Time remaining until Friday at 4:59 PM (Toronto time).";
   }
 }
 function availabilityText() {
