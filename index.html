@@ -13,7 +13,7 @@ h1{margin:0 0 6px;font-size:clamp(24px,4vw,34px)}.header p{margin:0;color:#dcebe
 .fields{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}label{display:block;font-weight:650;margin-bottom:5px}input,textarea,select{font:inherit;width:100%;padding:11px;border:1px solid #cbd7cf;border-radius:9px;background:white;color:inherit}
 small,.hint{color:var(--muted)}.table-wrap{overflow-x:auto}.availability{border-collapse:separate;border-spacing:4px;width:100%;min-width:750px}.availability th{font-size:12px;color:var(--muted);font-weight:700;padding:8px 3px}.availability th:first-child{min-width:112px;text-align:left}.availability td:first-child{font-weight:700;font-size:13px;white-space:nowrap;padding:4px}
 .slot{display:flex;align-items:center;justify-content:center;width:100%;min-width:42px;height:42px;padding:2px 1px;border:1px solid #cbd7cf;border-radius:7px;background:#f3f6f4;cursor:pointer;color:#405348;font-size:11px;font-weight:650;white-space:nowrap}.slot.on{background:var(--green);color:white;border-color:var(--green);font-weight:800}.availability th:not(:first-child):not(:last-child){min-width:48px}.availability{min-width:850px}.slot:focus-visible,button:focus-visible{outline:3px solid #82b7f5;outline-offset:2px}
-.daytools{display:flex;gap:5px}.mini{font-size:11px;padding:5px 7px;border:1px solid var(--line);background:white;border-radius:6px;cursor:pointer}.day-label{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.comment-day{font-size:11px;padding:4px 6px;border:1px solid #cbd7cf;background:#fff;border-radius:6px;cursor:pointer;color:#24543a}.comment-day.has-comment{background:#e5f4ea;border-color:#198754}.trap-field{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}button.primary,button.secondary{border:0;border-radius:10px;padding:12px 16px;font:inherit;font-weight:750;cursor:pointer}.primary{background:var(--green);color:white}.secondary{background:#eaf0ec;color:#24382c}.legend{display:flex;gap:14px;align-items:center;font-size:13px;color:var(--muted);margin:8px 0 14px}.swatch{display:inline-block;width:13px;height:13px;border-radius:4px;vertical-align:-2px;margin-right:5px}.deadline{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;align-items:center}.deadline h2{margin:0 0 4px;font-size:19px}.countdown{font-size:clamp(24px,4vw,36px);font-weight:850;letter-spacing:.03em;color:#173c2b;font-variant-numeric:tabular-nums}.deadline-date,.week-range{font-weight:750;color:#173c2b}.footer{font-size:12px;color:var(--muted);text-align:center;padding:10px}
+.daytools{display:flex;gap:5px}.mini{font-size:11px;padding:5px 7px;border:1px solid var(--line);background:white;border-radius:6px;cursor:pointer}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}button.primary,button.secondary{border:0;border-radius:10px;padding:12px 16px;font:inherit;font-weight:750;cursor:pointer}.primary{background:var(--green);color:white}.secondary{background:#eaf0ec;color:#24382c}.legend{display:flex;gap:14px;align-items:center;font-size:13px;color:var(--muted);margin:8px 0 14px}.swatch{display:inline-block;width:13px;height:13px;border-radius:4px;vertical-align:-2px;margin-right:5px}.deadline{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;align-items:center}.deadline h2{margin:0 0 4px;font-size:19px}.countdown{font-size:clamp(24px,4vw,36px);font-weight:850;letter-spacing:.03em;color:#173c2b;font-variant-numeric:tabular-nums}.deadline-date,.week-range{font-weight:750;color:#173c2b}.footer{font-size:12px;color:var(--muted);text-align:center;padding:10px}
 @media(max-width:650px){main{margin:12px auto}.header{padding:19px}.panel{padding:13px}.fields{grid-template-columns:1fr}.deadline{grid-template-columns:1fr}.availability{min-width:720px}}
 </style>
 </head>
@@ -39,17 +39,11 @@ small,.hint{color:var(--muted)}.table-wrap{overflow-x:auto}.availability{border-
     <label for="comments">Comments for your manager (optional)</label>
     <textarea id="comments" rows="3" placeholder="Add any notes, preferred shifts, or restrictions…"></textarea>
     <div class="actions">
-      <button class="primary" id="submitSheet">Submit availability</button>
-      <button class="secondary" id="share">Prepare WhatsApp message</button>
+      <button class="primary" id="share">Prepare WhatsApp message</button>
       <button class="secondary" id="copy">Copy availability text</button>
       <button class="secondary" id="clearAll">Clear all days</button>
     </div>
-    <p class="hint" id="status" aria-live="polite">Submit availability to save it in the scheduler’s private Google Sheet. WhatsApp remains available as an optional alternative.</p>
-    <form id="sheetForm" method="post" target="sheetResponseFrame" class="trap-field">
-      <input type="hidden" name="payload" id="sheetPayload">
-      <input type="text" name="website" id="websiteTrap" tabindex="-1" autocomplete="off" aria-hidden="true">
-    </form>
-    <iframe name="sheetResponseFrame" id="sheetResponseFrame" title="Submission response" hidden></iframe>
+    <p class="hint" id="status" aria-live="polite">This form does not automatically save or send submissions. Use WhatsApp to send your availability to your manager.</p>
   </section>
   <div class="footer">D-Spot staff scheduling helper · Free standalone form</div>
 </main>
@@ -58,9 +52,6 @@ small,.hint{color:var(--muted)}.table-wrap{overflow-x:auto}.availability{border-
 const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 const hours = [["1 PM","2 PM"],["2 PM","3 PM"],["3 PM","4 PM"],["4 PM","5 PM"],["5 PM","6 PM"],["6 PM","7 PM"],["7 PM","8 PM"],["8 PM","9 PM"],["9 PM","10 PM"],["10 PM","11 PM"],["11 PM","12 AM"],["12 AM","1 AM"]];
 const selected = days.map(() => new Set());
-const dayComments = days.map(() => "");
-// After deploying the Google Apps Script, paste its Web App URL here.
-const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyFg0nML_ByFGg75ufMWt-t0HQhMmbfIgCn1iuzk2UNpmvgectNy96lTffoP5kR3CRA/exec";
 const grid = document.getElementById("grid");
 const shortHour = (from, to) => from.replace(" PM","").replace(" AM","") + "-" + to.replace(" PM","").replace(" AM","");
 function build() {
@@ -74,25 +65,7 @@ function build() {
   days.forEach((day, d) => {
     const row = document.createElement("tr");
     const dayCell = document.createElement("td");
-    const dayLabel = document.createElement("div");
-    dayLabel.className = "day-label";
-    const dayName = document.createElement("span");
-    dayName.textContent = day;
-    const commentButton = document.createElement("button");
-    commentButton.type = "button";
-    commentButton.className = "comment-day";
-    commentButton.textContent = "＋ Comment";
-    commentButton.setAttribute("aria-label", "Add comment for " + day);
-    commentButton.addEventListener("click", () => {
-      const note = window.prompt("Add a comment for " + day + " (leave blank to remove it):", dayComments[d]);
-      if (note === null) return;
-      dayComments[d] = note.trim();
-      commentButton.textContent = dayComments[d] ? "✎ Comment ✓" : "＋ Comment";
-      commentButton.classList.toggle("has-comment", Boolean(dayComments[d]));
-      commentButton.setAttribute("aria-label", (dayComments[d] ? "Edit" : "Add") + " comment for " + day);
-    });
-    dayLabel.append(dayName, commentButton);
-    dayCell.append(dayLabel);
+    dayCell.textContent = day;
     row.append(dayCell);
     hours.forEach(([from,to], h) => {
       const cell = document.createElement("td");
@@ -194,7 +167,7 @@ function availabilityText() {
   const out = ["D-SPOT DESSERT CAFÉ — WEEKLY AVAILABILITY","Employee: "+name,"Week: "+fmtDate(week)+" – "+fmtDate(dateISO(weekEnd)),""];
   days.forEach((day,d) => {
     const picks = [...selected[d]].sort((a,b)=>a-b);
-    if (!picks.length) { out.push(day+": No hours selected"); if (dayComments[d]) out.push("  Comment: "+dayComments[d]); return; }
+    if (!picks.length) { out.push(day+": No hours selected"); return; }
     const ranges = [];
     let startHour = picks[0], prev = picks[0];
     for (let i=1; i<=picks.length; i++) {
@@ -203,73 +176,10 @@ function availabilityText() {
       if (i<picks.length) { startHour=picks[i]; prev=picks[i]; }
     }
     out.push(day+": "+ranges.join(", "));
-    if (dayComments[d]) out.push("  Comment: "+dayComments[d]);
   });
   if (comments) out.push("", "Comments: "+comments);
   return out.join("\n");
 }
-function submissionPayload() {
-  const name = document.getElementById("name").value.trim();
-  if (!name) {
-    document.getElementById("name").focus();
-    throw new Error("Please enter your full name.");
-  }
-  const weekStart = getWeekStart();
-  const weekEnd = new Date(weekStart + "T12:00:00");
-  weekEnd.setDate(weekEnd.getDate() + 6);
-  const perDay = {};
-  days.forEach((day, d) => {
-    const picks = [...selected[d]].sort((a,b) => a-b);
-    const ranges = [];
-    if (picks.length) {
-      let start = picks[0], prev = picks[0];
-      for (let i=1; i<=picks.length; i++) {
-        if (i<picks.length && picks[i]===prev+1) { prev=picks[i]; continue; }
-        ranges.push(hours[start][0] + "–" + hours[prev][1]);
-        if (i<picks.length) { start=picks[i]; prev=picks[i]; }
-      }
-    }
-    perDay[day] = { availability: ranges.length ? ranges.join(", ") : "No hours selected", comment: dayComments[d] || "" };
-  });
-  return {
-    name,
-    weekStart,
-    weekEnd: dateISO(weekEnd),
-    days: perDay,
-    comments: document.getElementById("comments").value.trim(),
-    message: availabilityText(),
-    website: document.getElementById("websiteTrap").value
-  };
-}
-let waitingForSheetResponse = false;
-window.addEventListener("message", event => {
-  if (!event.data || event.data.type !== "dspot-sheet-submit") return;
-  waitingForSheetResponse = false;
-  const status = document.getElementById("status");
-  status.textContent = event.data.ok
-    ? "Availability saved to the scheduler’s Google Sheet."
-    : "Submission failed: " + (event.data.error || "Please try again or contact the scheduler.");
-  if (event.data.ok) document.getElementById("websiteTrap").value = "";
-});
-document.getElementById("submitSheet").addEventListener("click", () => {
-  try {
-    if (!SHEETS_WEB_APP_URL.startsWith("https://script.google.com/")) {
-      throw new Error("Google Sheets is not connected yet. Follow the setup steps to deploy Apps Script and add its Web App URL.");
-    }
-    if (waitingForSheetResponse) throw new Error("Your submission is still processing. Please wait.");
-    const payload = submissionPayload();
-    document.getElementById("sheetForm").action = SHEETS_WEB_APP_URL;
-    document.getElementById("sheetPayload").value = JSON.stringify(payload);
-    waitingForSheetResponse = true;
-    document.getElementById("status").textContent = "Submitting your availability to the scheduler’s private Google Sheet…";
-    document.getElementById("sheetForm").submit();
-    window.setTimeout(() => {
-      if (!waitingForSheetResponse) return;
-      waitingForSheetResponse = false;
-      document.getElementById("status").textContent = "No confirmation was received. Check your connection and try again; if it repeats, contact the scheduler.";
-    }, 15000);
-  } catch (error) { showError(error); }
-});
 function showError(error) { document.getElementById("status").textContent = error.message || "Something went wrong."; }
 document.getElementById("share").addEventListener("click", () => {
   try {
