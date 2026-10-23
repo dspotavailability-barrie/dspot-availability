@@ -83,7 +83,7 @@ function toggle(d,h){if(selected[d].has(h))selected[d].delete(h);else selected[d
 function refresh(){[...grid.querySelectorAll("tbody tr")].forEach((tr,d)=>[...tr.querySelectorAll("button.slot")].forEach((b,h)=>{const on=selected[d].has(h);b.classList.toggle("on",on);b.textContent=on?"✓":"";b.setAttribute("aria-pressed",String(on))}))}
 function mondayISO(date){const d=new Date(date+"T12:00:00");const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
 function dateISO(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
-function nextMonday(){const now=new Date();const d=new Date(now.getFullYear(),now.getMonth(),now.getDate(),12);const sinceMonday=(d.getDay()+6)%7;d.setDate(d.getDate()-sinceMonday+7);return d}
+function nextMonday(){const now=new Date();const d=new Date(now.getFullYear(),now.getMonth(),now.getDate(),12);const sinceMonday=(d.getDay()+6)%7;d.setDate(d.getDate()-sinceMonday);if(now.getDay()===5&&now.getHours()>=16&&now.getMinutes()>=30){d.setDate(d.getDate()+10)}else{d.setDate(d.getDate()+7)}return d}
 function getWeekStart(){return dateISO(nextMonday())}
 function updateDeadline(){
  const monday=nextMonday(),sunday=new Date(monday);sunday.setDate(monday.getDate()+6);
