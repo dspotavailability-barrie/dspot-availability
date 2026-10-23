@@ -83,5 +83,7 @@ function doPost(e) {
 function response_(ok, error) {
   const result = JSON.stringify({ type: "dspot-sheet-submit", ok: Boolean(ok), error: String(error || "") });
   const html = '<!doctype html><html><body><script>window.top.postMessage(' + result + ', "*");</script>Submission ' + (ok ? "received" : "failed") + '.</body></html>';
-  return HtmlService.createHtmlOutput(html).setTitle("D-Spot submission");
+  return HtmlService.createHtmlOutput(html)
+    .setTitle("D-Spot submission")
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
