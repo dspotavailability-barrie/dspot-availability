@@ -60,7 +60,7 @@ const hours = [["1 PM","2 PM"],["2 PM","3 PM"],["3 PM","4 PM"],["4 PM","5 PM"],[
 const selected = days.map(() => new Set());
 const dayComments = days.map(() => "");
 // After deploying the Google Apps Script, paste its Web App URL here.
-const SHEETS_WEB_APP_URL = "PASTE_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyFg0nML_ByFGg75ufMWt-t0HQhMmbfIgCn1iuzk2UNpmvgectNy96lTffoP5kR3CRA/exec";
 const grid = document.getElementById("grid");
 const shortHour = (from, to) => from.replace(" PM","").replace(" AM","") + "-" + to.replace(" PM","").replace(" AM","");
 function build() {
