@@ -26,7 +26,8 @@ small,.hint{color:var(--muted)}.table-wrap{overflow-x:auto}.availability{border-
   </section>
   <section class="panel">
     <div class="fields">
-      <div><label for="name">Full name *</label><input id="name" autocomplete="name" placeholder="Enter your full name" required></div>
+      <div><label for="name">Full name *</label><input id="name" autocomplete="name" placeholder="Enter your assigned full name" required></div>
+      <div><label for="employeeCode">Employee code *</label><input id="employeeCode" autocomplete="off" autocapitalize="characters" placeholder="Enter your private code" required></div>
       <div><label>Week covered</label><div class="week-range" id="weekDisplay">Calculating next week…</div><small>The form automatically uses next Monday through Sunday.</small></div>
     </div>
     <p class="hint">Green with a check means available. Select an hour to toggle it on or off. You can also fill or clear an entire day.</p>
@@ -39,11 +40,10 @@ small,.hint{color:var(--muted)}.table-wrap{overflow-x:auto}.availability{border-
     <label for="comments">Comments for your manager (optional)</label>
     <textarea id="comments" rows="3" placeholder="Add any notes, preferred shifts, or restrictions…"></textarea>
     <div class="actions">
-      <button class="primary" id="share">Prepare WhatsApp message</button>
-      <button class="secondary" id="copy">Copy availability text</button>
+      <button class="primary" id="submitAvailability">Submit availability</button>
       <button class="secondary" id="clearAll">Clear all days</button>
     </div>
-    <p class="hint" id="status" aria-live="polite">This form does not automatically save or send submissions. Use WhatsApp to send your availability to your manager.</p>
+    <p class="hint" id="status" aria-live="polite">Your availability is not saved until you submit. Each employee code can submit once per scheduled week; submissions cannot be changed afterward.</p>
   </section>
   <div class="footer">D-Spot staff scheduling helper · Free standalone form</div>
 </main>
@@ -181,27 +181,31 @@ function availabilityText() {
   return out.join("\n");
 }
 function showError(error) { document.getElementById("status").textContent = error.message || "Something went wrong."; }
-document.getElementById("share").addEventListener("click", () => {
+document.getElementById("submitAvailability").addEventListener("click", async () => {
+  const button = document.getElementById("submitAvailability");
+  const status = document.getElementById("status");
   try {
     const msg = availabilityText();
-    document.getElementById("status").textContent = "Opening WhatsApp with your availability message. Choose your manager or group to send it.";
-    window.open("https://wa.me/12268832915?text="+encodeURIComponent(msg), "_blank", "noopener,noreferrer");
-  } catch (error) { showError(error); }
-});
-document.getElementById("copy").addEventListener("click", async () => {
-  try {
-    const msg = availabilityText();
-    try { await navigator.clipboard.writeText(msg); }
-    catch (_) {
-      const area = document.createElement("textarea");
-      area.value = msg;
-      document.body.append(area);
-      area.select();
-      document.execCommand("copy");
-      area.remove();
-    }
-    document.getElementById("status").textContent = "Availability text copied. Paste it into WhatsApp or another message.";
-  } catch (error) { showError(error); }
+    const code = document.getElementById("employeeCode").value.trim().toUpperCase();
+    if (!code) { document.getElementById("employeeCode").focus(); throw new Error("Please enter your employee code."); }
+    button.disabled = true;
+    button.textContent = "Submitting…";
+    status.textContent = "Submitting your availability securely…";
+    const response = await fetch("/api/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code, name: document.getElementById("name").value.trim(), availability: msg })
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "Submission failed. Please try again.");
+    status.textContent = result.message + " Week starting " + result.weekStart + ".";
+    document.querySelectorAll("#grid button.slot, #grid button.mini, #clearAll, #name, #employeeCode, #comments").forEach(el => { el.disabled = true; });
+    button.textContent = "Submitted — locked";
+  } catch (error) {
+    showError(error);
+    button.disabled = false;
+    button.textContent = "Submit availability";
+  }
 });
 document.getElementById("clearAll").addEventListener("click", () => {
   selected.forEach(set => set.clear());
