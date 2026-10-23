@@ -54,7 +54,7 @@ const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sun
 const hours = [["1 PM","2 PM"],["2 PM","3 PM"],["3 PM","4 PM"],["4 PM","5 PM"],["5 PM","6 PM"],["6 PM","7 PM"],["7 PM","8 PM"],["8 PM","9 PM"],["9 PM","10 PM"],["10 PM","11 PM"],["11 PM","12 AM"],["12 AM","1 AM"]];
 const selected = days.map(() => new Set());
 const grid = document.getElementById("grid");
-const shortHour = (from, to) => from.replace(" PM","").replace(" AM","") + "–" + to.replace(" PM","").replace(" AM","");
+const shortHour = (from, to) => from.replace(" PM","").replace(" AM","") + "-" + to.replace(" PM","").replace(" AM","");
 function build() {
   const thead = document.createElement("thead");
   const headRow = document.createElement("tr");
@@ -120,7 +120,7 @@ function refresh() {
     row.querySelectorAll("button.slot").forEach((button, h) => {
       const on = selected[d].has(h);
       button.classList.toggle("on", on);
-      button.textContent = (on ? "✓ " : "") + shortHour(hours[h][0], hours[h][1]);
+      button.textContent = shortHour(hours[h][0], hours[h][1]);
       button.setAttribute("aria-pressed", String(on));
     });
   });
