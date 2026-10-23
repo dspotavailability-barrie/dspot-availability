@@ -23,7 +23,6 @@ small,.hint{color:var(--muted)}.table-wrap{overflow-x:auto}.availability{border-
   <section class="panel">
     <div class="fields">
       <div><label for="name">Full name *</label><input id="name" autocomplete="name" placeholder="Enter your full name" required></div>
-      <div><label for="employee">Employee ID (optional)</label><input id="employee" placeholder="Employee ID"></div>
       <div><label for="week">Week starting (Monday) *</label><input id="week" type="date" required></div>
     </div>
     <p class="hint">Green with a check means available. Select an hour to toggle it on or off. You can also fill or clear an entire day.</p>
@@ -31,7 +30,7 @@ small,.hint{color:var(--muted)}.table-wrap{overflow-x:auto}.availability{border-
   <section class="panel">
     <div class="legend"><span><i class="swatch" style="background:#198754"></i>Available</span><span><i class="swatch" style="background:#f3f6f4;border:1px solid #d7e1da"></i>Not selected</span></div>
     <div class="table-wrap"><table class="availability" id="grid" aria-label="Hourly availability"></table></div>
-    <p class="hint">Hours after midnight (12 AM–2 AM) are shown at the end of the same day's shift.</p>
+    <p class="hint">The final slots include 11 PM–12 AM and 12 AM–1 AM.</p>
   </section>
   <section class="panel">
     <label for="comments">Comments for your manager (optional)</label>
@@ -47,7 +46,7 @@ small,.hint{color:var(--muted)}.table-wrap{overflow-x:auto}.availability{border-
 </main>
 <script>
 const days=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
-// Each day's shift runs from 6 AM through 2 AM the following calendar day.
+// Availability slots run from 1 PM through 1 AM the following day.
 const hours = [
   ["1 PM", "2 PM"],
   ["2 PM", "3 PM"],
@@ -83,15 +82,15 @@ const today=new Date();const iso=`${today.getFullYear()}-${String(today.getMonth
 document.getElementById("week").addEventListener("change",e=>{if(e.target.value)e.target.value=mondayISO(e.target.value)});
 function fmtDate(iso){if(!iso)return "Not selected";return new Date(iso+"T12:00:00").toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"})}
 function availabilityText(){
- const name=document.getElementById("name").value.trim(),employee=document.getElementById("employee").value.trim(),week=document.getElementById("week").value,comments=document.getElementById("comments").value.trim();
+ const name=document.getElementById("name").value.trim(),week=document.getElementById("week").value,comments=document.getElementById("comments").value.trim();
  if(!name){document.getElementById("name").focus();throw Error("Please enter your full name.")}if(!week)throw Error("Please choose the week starting date.");
- let out=["D-SPOT DESSERT CAFÉ — WEEKLY AVAILABILITY",`Employee: ${name}`];if(employee)out.push(`Employee ID: ${employee}`);out.push(`Week starting: ${fmtDate(week)}`,"");
+ let out=["D-SPOT DESSERT CAFÉ — WEEKLY AVAILABILITY",`Employee: ${name}`,`Week starting: ${fmtDate(week)}`,""];
  days.forEach((day,d)=>{const picks=[...selected[d]].sort((a,b)=>a-b);if(!picks.length){out.push(`${day}: No hours selected`);return}
  const ranges=[];let start=picks[0],prev=picks[0];for(let i=1;i<=picks.length;i++){if(i<picks.length&&picks[i]===prev+1){prev=picks[i];continue}ranges.push(`${hours[start][0]}–${hours[prev][1]}`);if(i<picks.length)start=prev=picks[i]}out.push(`${day}: ${ranges.join(", ")}`)});
  if(comments)out.push("",`Comments: ${comments}`);return out.join("\n");
 }
 function showError(err){document.getElementById("status").textContent=err.message}
-document.getElementById("share").addEventListener("click",()=>{try{const msg=availabilityText();document.getElementById("status").textContent="Opening WhatsApp with your availability message. Choose your manager or group to send it.";window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank","noopener,noreferrer")}catch(e){showError(e)}});
+document.getElementById("share").addEventListener("click",()=>{try{const msg=availabilityText();document.getElementById("status").textContent="Opening WhatsApp with your availability message. Choose your manager or group to send it.";window.open("https://wa.me/12268832915?text="+encodeURIComponent(msg),"_blank","noopener,noreferrer")}catch(e){showError(e)}});
 document.getElementById("copy").addEventListener("click",async()=>{try{const msg=availabilityText();await navigator.clipboard.writeText(msg);document.getElementById("status").textContent="Availability text copied. Paste it into WhatsApp or another message."}catch(e){try{const t=document.createElement("textarea");t.value=availabilityText();document.body.append(t);t.select();document.execCommand("copy");t.remove();document.getElementById("status").textContent="Availability text copied. Paste it into WhatsApp."}catch(err){showError(err)}}});
 document.getElementById("clearAll").addEventListener("click",()=>{selected.forEach(s=>s.clear());refresh();document.getElementById("status").textContent="All availability selections cleared."});
 build();
