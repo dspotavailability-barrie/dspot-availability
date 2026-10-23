@@ -148,7 +148,10 @@ function updateDeadline() {
   const sunday = new Date(monday);
   sunday.setDate(sunday.getDate()+6);
   const deadline = new Date(monday);
-  deadline.setDate(deadline.getDate()-3);
+  const now = new Date();
+  // Before Friday's 5 PM switchover, the deadline is the upcoming Friday.
+  // After switchover, the new week's deadline is the Friday that just passed.
+  deadline.setDate(deadline.getDate() - (now.getDay() === 5 && now.getHours() >= 17 ? 10 : 3));
   deadline.setHours(16,0,0,0);
   const fmt = {month:"short",day:"numeric",year:"numeric"};
   document.getElementById("weekRange").textContent = "For " + monday.toLocaleDateString(undefined,fmt) + " – " + sunday.toLocaleDateString(undefined,fmt);
