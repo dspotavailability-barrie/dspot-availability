@@ -135,8 +135,13 @@ function nextMonday() {
   const now = new Date();
   const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12);
   d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-  if (now.getDay() === 5 && (now.getHours() >= 17)) d.setDate(d.getDate() + 14);
-  else d.setDate(d.getDate() + 7);
+  // The week switches at Friday 5:00 PM and stays switched through the weekend.
+  // Friday before 5 PM shows next Monday; Friday 5 PM onward shows the Monday after that.
+  if ((now.getDay() === 5 && now.getHours() >= 17) || now.getDay() === 6 || now.getDay() === 0) {
+    d.setDate(d.getDate() + 14);
+  } else {
+    d.setDate(d.getDate() + 7);
+  }
   return d;
 }
 function getWeekStart() { return dateISO(nextMonday()); }
