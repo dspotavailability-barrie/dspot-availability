@@ -204,12 +204,17 @@ function availabilityText() {
   if (comments) out.push("", "General comments: "+comments);
   return out.join("\n");
 }
-function showError(error) { document.getElementById("status").textContent = error.message || "Something went wrong."; }
+function showError(error) {
+  const status = document.getElementById("status");
+  if (status) status.textContent = error.message || "Something went wrong.";
+  else window.alert(error.message || "Something went wrong.");
+}
 document.getElementById("share").addEventListener("click", () => {
   try {
     const msg = availabilityText();
-    document.getElementById("status").textContent = "Opening WhatsApp with your availability message. Choose your manager or group to send it.";
-    window.open("https://wa.me/12268832915?text="+encodeURIComponent(msg), "_blank", "noopener,noreferrer");
+    const whatsappUrl = "https://wa.me/12268832915?text=" + encodeURIComponent(msg);
+    // Navigate directly from the button click so mobile browsers don't block the WhatsApp handoff.
+    window.location.href = whatsappUrl;
   } catch (error) { showError(error); }
 });
 build();
