@@ -13,7 +13,7 @@ h1{margin:0 0 6px;font-size:clamp(24px,4vw,34px)}.header p{margin:0;color:#dcebe
 .fields{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}label{display:block;font-weight:650;margin-bottom:5px}input,textarea,select{font:inherit;width:100%;padding:11px;border:1px solid #cbd7cf;border-radius:9px;background:white;color:inherit}
 small,.hint{color:var(--muted)}.table-wrap{overflow-x:auto}.availability{border-collapse:separate;border-spacing:4px;width:100%;min-width:750px}.availability th{font-size:12px;color:var(--muted);font-weight:700;padding:8px 3px}.availability th:first-child{min-width:112px;text-align:left}.availability td:first-child{position:sticky;left:0;z-index:2;background:white;font-weight:700;font-size:13px;white-space:nowrap;padding:4px;box-shadow:4px 0 5px #163c2b0a}
 .slot{display:flex;align-items:center;justify-content:center;width:100%;min-width:42px;height:42px;padding:2px 1px;border:1px solid #cbd7cf;border-radius:7px;background:#f3f6f4;cursor:pointer;color:#405348;font-size:11px;font-weight:650;white-space:nowrap}.slot.on{background:var(--green);color:white;border-color:var(--green);font-weight:800}.availability th:not(:first-child):not(:last-child){min-width:48px}.availability{min-width:850px}.slot:focus-visible,button:focus-visible{outline:3px solid #82b7f5;outline-offset:2px}
-.daytools{display:flex;gap:5px}.mini{font-size:11px;padding:5px 7px;border:1px solid var(--line);background:white;border-radius:6px;cursor:pointer}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}button.primary,button.secondary{border:0;border-radius:10px;padding:12px 16px;font:inherit;font-weight:750;cursor:pointer}.primary{background:var(--green);color:white}.secondary{background:#eaf0ec;color:#24382c}.legend{display:flex;gap:14px;align-items:center;font-size:13px;color:var(--muted);margin:8px 0 14px}.swatch{display:inline-block;width:13px;height:13px;border-radius:4px;vertical-align:-2px;margin-right:5px}.deadline{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;align-items:center}.deadline h2{margin:0 0 4px;font-size:19px}.countdown{font-size:clamp(24px,4vw,36px);font-weight:850;letter-spacing:.03em;color:#dc2626;font-variant-numeric:tabular-nums}.deadline-date,.week-range{font-weight:750;color:#173c2b}.footer{font-size:12px;color:var(--muted);text-align:center;padding:10px}
+.daytools{display:flex;gap:5px}.mini{font-size:11px;padding:5px 7px;border:1px solid var(--line);background:white;border-radius:6px;cursor:pointer}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}button.primary,button.secondary{border:0;border-radius:10px;padding:12px 16px;font:inherit;font-weight:750;cursor:pointer}.primary{background:var(--green);color:white}.secondary{background:#eaf0ec;color:#24382c}.legend{display:flex;gap:14px;align-items:center;font-size:13px;color:var(--muted);margin:8px 0 14px}.swatch{display:inline-block;width:13px;height:13px;border-radius:4px;vertical-align:-2px;margin-right:5px}.deadline{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;align-items:center}.deadline h2{margin:0 0 4px;font-size:19px}.countdown{font-size:clamp(24px,4vw,36px);font-weight:850;letter-spacing:.03em;color:#dc2626;font-variant-numeric:tabular-nums}.deadline-date,.week-range{font-weight:750;color:#173c2b}.footer{font-size:12px;color:var(--muted);text-align:center;padding:10px}.progress-track{height:10px;background:#e8eee9;border-radius:999px;overflow:hidden;margin:8px 0}.progress-fill{height:100%;width:0;background:var(--green);transition:width .2s}.progress-meta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px}.review-overlay{position:fixed;inset:0;z-index:20;background:#102218a8;display:none;align-items:center;justify-content:center;padding:16px}.review-overlay.open{display:flex}.review-card{background:white;border-radius:16px;width:min(760px,100%);max-height:90vh;overflow:auto;padding:20px;box-shadow:0 18px 60px #0003}.review-card h2{margin:0 0 6px}.review-preview{white-space:pre-wrap;overflow-wrap:anywhere;background:#f5f8f6;border:1px solid var(--line);border-radius:10px;padding:14px;max-height:48vh;overflow:auto;font:13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace}.review-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 @media(max-width:650px){main{margin:12px auto}.header{padding:19px}.panel{padding:13px}.fields{grid-template-columns:1fr}.deadline{grid-template-columns:1fr}.availability{min-width:720px}}
 </style>
 </head>
@@ -35,14 +35,30 @@ small,.hint{color:var(--muted)}.table-wrap{overflow-x:auto}.availability{border-
     <div class="legend"><span><i class="swatch" style="background:#198754"></i>Available</span><span><i class="swatch" style="background:#f3f6f4;border:1px solid #d7e1da"></i>Not selected</span></div>
     <div class="table-wrap"><table class="availability" id="grid" aria-label="Hourly availability"></table></div>
   </section>
+  <section class="panel" aria-live="polite">
+    <div class="progress-meta"><strong>Availability progress</strong><span id="progressText">0 of 7 days completed</span></div>
+    <div class="progress-track" role="progressbar" aria-label="Availability completion" aria-valuemin="0" aria-valuemax="7" aria-valuenow="0" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+    <p class="hint" id="progressHint">Select at least one available hour for each day to complete your weekly availability.</p>
+  </section>
   <section class="panel">
     <label for="comments">Comments (optional)</label>
     <textarea id="comments" rows="3" placeholder="Add any notes, preferred shifts, or restrictions…"></textarea>
     <div class="actions">
-      <button class="primary" id="share">Send Availability</button>
+      <button class="primary" id="review">Review Before Sending</button>
     </div>
 
   </section>
+  <div class="review-overlay" id="reviewOverlay" role="dialog" aria-modal="true" aria-labelledby="reviewTitle">
+    <div class="review-card">
+      <h2 id="reviewTitle">Review your availability</h2>
+      <p class="hint" id="reviewSummary">Check your details before opening WhatsApp.</p>
+      <pre class="review-preview" id="reviewPreview"></pre>
+      <div class="review-actions">
+        <button type="button" class="secondary" id="backToEdit">Back to Edit</button>
+        <button type="button" class="primary" id="confirmSend">Confirm &amp; Open WhatsApp</button>
+      </div>
+    </div>
+  </div>
   <div class="footer">Managed and published by Harsh</div>
 </main>
 <script>
@@ -127,6 +143,17 @@ function refresh() {
       button.setAttribute("aria-pressed", String(on));
     });
   });
+  updateProgress();
+}
+function updateProgress() {
+  const completed = selected.filter(set => set.size > 0).length;
+  const total = days.length;
+  document.getElementById("progressText").textContent = completed + " of " + total + " days completed";
+  document.getElementById("progressFill").style.width = (completed / total * 100) + "%";
+  document.getElementById("progressBar").setAttribute("aria-valuenow", String(completed));
+  document.getElementById("progressHint").textContent = completed === total
+    ? "All seven days have at least one available hour. You're ready to review."
+    : (total - completed) + " day" + (total - completed === 1 ? "" : "s") + " still have no hours selected.";
 }
 function dateISO(date) {
   return date.getFullYear() + "-" + String(date.getMonth()+1).padStart(2,"0") + "-" + String(date.getDate()).padStart(2,"0");
@@ -209,12 +236,39 @@ function showError(error) {
   if (status) status.textContent = error.message || "Something went wrong.";
   else window.alert(error.message || "Something went wrong.");
 }
-document.getElementById("share").addEventListener("click", () => {
+const reviewOverlay = document.getElementById("reviewOverlay");
+document.getElementById("review").addEventListener("click", () => {
+  try {
+    const name = document.getElementById("name").value.trim();
+    if (!name) {
+      document.getElementById("name").focus();
+      throw new Error("Please enter your full name before reviewing.");
+    }
+    const completed = selected.filter(set => set.size > 0).length;
+    document.getElementById("reviewSummary").textContent =
+      completed + " of 7 days have availability selected. Please check the message below before sending.";
+    document.getElementById("reviewPreview").textContent = availabilityText();
+    reviewOverlay.classList.add("open");
+    document.getElementById("confirmSend").focus();
+  } catch (error) { showError(error); }
+});
+document.getElementById("backToEdit").addEventListener("click", () => {
+  reviewOverlay.classList.remove("open");
+  document.getElementById("review").focus();
+});
+reviewOverlay.addEventListener("click", event => {
+  if (event.target === reviewOverlay) reviewOverlay.classList.remove("open");
+});
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape" && reviewOverlay.classList.contains("open")) {
+    reviewOverlay.classList.remove("open");
+    document.getElementById("review").focus();
+  }
+});
+document.getElementById("confirmSend").addEventListener("click", () => {
   try {
     const msg = availabilityText();
-    const whatsappUrl = "https://wa.me/12268832915?text=" + encodeURIComponent(msg);
-    // Navigate directly from the button click so mobile browsers don't block the WhatsApp handoff.
-    window.location.href = whatsappUrl;
+    window.location.href = "https://wa.me/12268832915?text=" + encodeURIComponent(msg);
   } catch (error) { showError(error); }
 });
 build();
