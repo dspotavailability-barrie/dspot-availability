@@ -62,6 +62,16 @@ small,.hint{color:var(--muted)}.table-wrap{overflow-x:auto}.availability{border-
   </div>
   <div class="footer">Managed and published by Harsh</div>
 </main>
+
+<div id="maintenanceScreen" class="maintenance-screen" role="status" aria-live="polite">
+  <section class="maintenance-card">
+    <div style="font-size:42px" aria-hidden="true">🍰</div>
+    <h1>D-Spot Availability Form</h1>
+    <p><strong>Temporary Maintenance</strong></p>
+    <p>This form is temporarily unavailable after the weekly availability deadline. Please check back in 12 hours.</p>
+    <p>D-Spot Dessert Café (Barrie)</p>
+  </section>
+</div>
 <script>
 "use strict";
 const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
@@ -278,14 +288,5 @@ setInterval(updateDeadline, 1000);
 
 </script>
 
-<div id="maintenanceScreen" class="maintenance-screen" role="status" aria-live="polite">
-  <section class="maintenance-card">
-    <div style="font-size:42px" aria-hidden="true">🍰</div>
-    <h1>D-Spot Availability Form</h1>
-    <p><strong>Temporary Maintenance</strong></p>
-    <p>This form is temporarily unavailable after the weekly availability deadline. Please check back in 12 hours.</p>
-    <p>D-Spot Dessert Café (Barrie)</p>
-  </section>
-</div>
 </body>
 </html>
