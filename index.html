@@ -8,7 +8,7 @@
 :root{--green:#8f3f54;--dark:#39252a;--muted:#846e70;--line:#f0d9d6;--bg:#fff7f2;--berry:#8f3f54;--cream:#fffaf6;--caramel:#d99a58;--chocolate:#39252a}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top left,#ffe9e2 0,transparent 36%),var(--bg);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--dark)}
 main{max-width:1120px;margin:28px auto;padding:0 16px}.header{position:relative;overflow:hidden;background:linear-gradient(125deg,#4a2633 0%,#8f3f54 56%,#c36f78 100%);color:white;border:1px solid #a85a6c;border-radius:24px;padding:30px;margin-bottom:18px;box-shadow:0 12px 30px #8f3f5420}.header:after{content:"🍰  ✦  🍓";position:absolute;right:24px;bottom:12px;font-size:clamp(25px,4vw,42px);opacity:.9;transform:rotate(-7deg)}
-h1{margin:0 0 7px;font-family:Georgia,"Times New Roman",serif;font-size:clamp(27px,4vw,38px);letter-spacing:-.02em}.header p{margin:0;color:#ffe9e9;max-width:70%}
+.maintenance-screen{display:none;position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at top left,#ffe9e2 0,transparent 36%),var(--bg);align-items:center;justify-content:center;padding:24px;text-align:center}.maintenance-screen.show{display:flex}.maintenance-card{max-width:520px;background:#fffdfb;border:1px solid var(--line);border-radius:24px;padding:32px;box-shadow:0 12px 30px #8f3f5420}.maintenance-card h1{color:var(--berry);font-size:clamp(28px,5vw,38px)}.maintenance-card p{color:var(--muted);font-size:16px}h1{margin:0 0 7px;font-family:Georgia,"Times New Roman",serif;font-size:clamp(27px,4vw,38px);letter-spacing:-.02em}.header p{margin:0;color:#ffe9e9;max-width:70%}
 .panel{background:#fffdfb;border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:0 6px 20px #6335410a}
 .fields{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}label{display:block;font-weight:650;margin-bottom:5px}input,textarea,select{font:inherit;width:100%;padding:11px;border:1px solid #cbd7cf;border-radius:9px;background:white;color:inherit}
 small,.hint{color:var(--muted)}.table-wrap{overflow-x:auto}.availability{border-collapse:separate;border-spacing:4px;width:100%;min-width:750px}.availability th{font-size:12px;color:var(--muted);font-weight:700;padding:8px 3px}.availability th:first-child{min-width:112px;text-align:left}.availability td:first-child{position:sticky;left:0;z-index:2;background:white;font-weight:700;font-size:13px;white-space:nowrap;padding:4px;box-shadow:4px 0 5px #163c2b0a}
@@ -63,6 +63,15 @@ small,.hint{color:var(--muted)}.table-wrap{overflow-x:auto}.availability{border-
   <div class="footer">Managed and published by Harsh</div>
 </main>
 
+<div id="maintenanceScreen" class="maintenance-screen" role="status" aria-live="polite">
+  <section class="maintenance-card">
+    <div style="font-size:42px" aria-hidden="true">🍰</div>
+    <h1>D-Spot Availability Form</h1>
+    <p><strong>Temporary Maintenance</strong></p>
+    <p>We’re finalising the schedule. Please wait <strong><span id="maintenanceHours">24</span> hours and <span id="maintenanceMinutes">0</span> minutes</strong> before submitting a new request.</p>
+    <p>D-Spot Dessert Café (Barrie)</p>
+  </section>
+</div>
 <script>
 "use strict";
 const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
@@ -187,7 +196,20 @@ function updateDeadline() {
   document.getElementById("weekRange").textContent = "For " + monday.toLocaleDateString(undefined,fmt) + " – " + sunday.toLocaleDateString(undefined,fmt);
   document.getElementById("weekDisplay").textContent = monday.toLocaleDateString(undefined,fmt) + " – " + sunday.toLocaleDateString(undefined,fmt);
   document.getElementById("deadlineDate").textContent = deadline.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"}) + (monday.getFullYear() === 2026 && monday.getMonth() === 10 && monday.getDate() === 2 ? " at 4:00 PM" : " at 1:00 PM");
-  const diff = Math.max(0, deadline.getTime() - Date.now());
+  const rawDiff = deadline.getTime() - now.getTime();
+  const maintenanceEnd = new Date(deadline.getTime() + 24 * 60 * 60 * 1000);
+  const maintenanceActive = rawDiff <= 0 && now.getTime() < maintenanceEnd.getTime();
+  const maintenance = document.getElementById("maintenanceScreen");
+  maintenance.classList.toggle("show", maintenanceActive);
+  document.body.style.overflow = maintenanceActive ? "hidden" : "";
+  if (maintenanceActive) {
+    const remaining = maintenanceEnd.getTime() - now.getTime();
+    const hrs = Math.floor(remaining / 3600000);
+    const mins = Math.floor((remaining % 3600000) / 60000);
+    document.getElementById("maintenanceHours").textContent = String(hrs);
+    document.getElementById("maintenanceMinutes").textContent = String(mins);
+  }
+  const diff = Math.max(0, rawDiff);
   const total = Math.floor(diff / 1000);
   const daysLeft = Math.floor(total / 86400);
   const hoursLeft = Math.floor((total % 86400) / 3600);
@@ -197,9 +219,10 @@ function updateDeadline() {
   if (daysLeft > 0) parts.push(daysLeft + "d");
   parts.push(hoursLeft + "h", minutesLeft + "m", secondsLeft + "s");
   document.getElementById("countdown").textContent = parts.join(" ");
-  document.getElementById("deadlineStatus").textContent = diff > 0
+  document.getElementById("deadlineStatus").textContent = rawDiff > 0
     ? "Time remaining until submissions are due (Toronto time)."
-    : "Deadline time reached (Toronto time).";
+    : maintenanceActive ? "Submissions are temporarily paused while we finalise the schedule."
+    : "The 24-hour maintenance period has ended.";
 }
 function availabilityText() {
   const name = document.getElementById("name").value.trim();
