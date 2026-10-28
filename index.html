@@ -68,8 +68,7 @@ small,.hint{color:var(--muted)}.table-wrap{overflow-x:auto}.availability{border-
     <div style="font-size:42px" aria-hidden="true">🍰</div>
     <h1>D-Spot Availability Form</h1>
     <p><strong>Temporary Maintenance</strong></p>
-    <p>We’re finalising the schedule. Please wait <strong id="maintenanceHours">12</strong> hours before submitting your availability for <strong id="maintenanceWeek">the upcoming week</strong>.</p>
-    <p id="switchOverDates">After the Friday 5:00 PM switch-over, the form will request availability for the following week.</p>
+    <p>We’re finalising the schedule. Please wait <strong><span id="maintenanceHours">12</span> hours and <span id="maintenanceMinutes">0</span> minutes</strong> before submitting a new request.</p>
     <p>D-Spot Dessert Café (Barrie)</p>
   </section>
 </div>
@@ -200,27 +199,11 @@ function updateDeadline() {
   const diff = deadline.getTime()-Date.now();
   const maintenance = document.getElementById("maintenanceScreen");
   const maintenanceActive = diff <= 0 && diff > -12 * 60 * 60 * 1000;
-  const maintenanceHours = document.getElementById("maintenanceHours");
   const remainingMs = Math.max(0, 12 * 60 * 60 * 1000 + diff);
-  if (maintenanceHours) {
-    const remainingHours = Math.ceil(remainingMs / (60 * 60 * 1000));
-    maintenanceHours.textContent = String(remainingHours);
-  }
-  const maintenanceWeek = document.getElementById("maintenanceWeek");
-  if (maintenanceWeek) {
-    maintenanceWeek.textContent = monday.toLocaleDateString(undefined,{month:"short",day:"numeric"}) + " – " + sunday.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
-  }
-  const switchOverDates = document.getElementById("switchOverDates");
-  if (switchOverDates) {
-    const nextWeekStart = new Date(monday);
-    nextWeekStart.setDate(nextWeekStart.getDate() + 7);
-    const nextWeekEnd = new Date(nextWeekStart);
-    nextWeekEnd.setDate(nextWeekEnd.getDate() + 6);
-    const dateOptions = {month:"short",day:"numeric"};
-    switchOverDates.textContent = "After the Friday 5:00 PM switch-over, availability will be requested for " +
-      nextWeekStart.toLocaleDateString(undefined,dateOptions) + " – " +
-      nextWeekEnd.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"}) + ".";
-  }
+  const maintenanceHours = document.getElementById("maintenanceHours");
+  const maintenanceMinutes = document.getElementById("maintenanceMinutes");
+  if (maintenanceHours) maintenanceHours.textContent = String(Math.floor(remainingMs / (60 * 60 * 1000)));
+  if (maintenanceMinutes) maintenanceMinutes.textContent = String(Math.floor((remainingMs % (60 * 60 * 1000)) / (60 * 1000)));
   maintenance.classList.toggle("show", maintenanceActive);
   document.body.style.overflow = maintenanceActive ? "hidden" : "";
   const count = document.getElementById("countdown");
