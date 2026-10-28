@@ -176,7 +176,7 @@ function updateDeadline() {
   // One-time immediate deadline: Oct 28, 2026 at 1:35:44 AM Toronto time.
   if (monday.getFullYear() === 2026 && monday.getMonth() === 10 && monday.getDate() === 2) {
     deadline.setFullYear(2026, 9, 28);
-    deadline.setHours(1,35,44,0);
+    deadline.setHours(1,37,28,0);
   } else {
     // Normal deadline: Friday at 1 PM, adjusted for the Friday 5 PM week switchover.
     deadline.setDate(deadline.getDate() - (now.getDay() === 5 && now.getHours() >= 17 ? 10 : 3));
@@ -276,6 +276,8 @@ build();
 updateDeadline();
 setInterval(updateDeadline, 1000);
 
+</script>
+
 <div id="maintenanceScreen" class="maintenance-screen" role="status" aria-live="polite">
   <section class="maintenance-card">
     <div style="font-size:42px" aria-hidden="true">🍰</div>
@@ -285,6 +287,5 @@ setInterval(updateDeadline, 1000);
     <p>D-Spot Dessert Café (Barrie)</p>
   </section>
 </div>
-</script>
 </body>
 </html>
