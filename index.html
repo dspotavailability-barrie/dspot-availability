@@ -198,8 +198,8 @@ function updateDeadline() {
   document.getElementById("deadlineDate").textContent = deadline.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"}) + (monday.getFullYear() === 2026 && monday.getMonth() === 10 && monday.getDate() === 2 ? " (deadline now)" : " at 1:00 PM");
   const diff = deadline.getTime()-Date.now();
   const maintenance = document.getElementById("maintenanceScreen");
-  const maintenanceActive = diff <= 0 && diff > -12 * 60 * 60 * 1000;
-  const remainingMs = Math.max(0, 12 * 60 * 60 * 1000 + diff);
+  const maintenanceActive = diff <= 0 && diff > -24 * 60 * 60 * 1000;
+  const remainingMs = Math.max(0, 24 * 60 * 60 * 1000 + diff);
   const maintenanceHours = document.getElementById("maintenanceHours");
   const maintenanceMinutes = document.getElementById("maintenanceMinutes");
   if (maintenanceHours) maintenanceHours.textContent = String(Math.floor(remainingMs / (60 * 60 * 1000)));
