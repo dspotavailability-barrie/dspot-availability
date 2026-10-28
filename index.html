@@ -69,6 +69,7 @@ small,.hint{color:var(--muted)}.table-wrap{overflow-x:auto}.availability{border-
     <h1>D-Spot Availability Form</h1>
     <p><strong>Temporary Maintenance</strong></p>
     <p>We’re finalising the schedule. Please wait <strong id="maintenanceHours">12</strong> hours before submitting your availability for <strong id="maintenanceWeek">the upcoming week</strong>.</p>
+    <p id="switchOverDates">After the Friday 5:00 PM switch-over, the form will request availability for the following week.</p>
     <p>D-Spot Dessert Café (Barrie)</p>
   </section>
 </div>
@@ -208,6 +209,17 @@ function updateDeadline() {
   const maintenanceWeek = document.getElementById("maintenanceWeek");
   if (maintenanceWeek) {
     maintenanceWeek.textContent = monday.toLocaleDateString(undefined,{month:"short",day:"numeric"}) + " – " + sunday.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
+  }
+  const switchOverDates = document.getElementById("switchOverDates");
+  if (switchOverDates) {
+    const nextWeekStart = new Date(monday);
+    nextWeekStart.setDate(nextWeekStart.getDate() + 7);
+    const nextWeekEnd = new Date(nextWeekStart);
+    nextWeekEnd.setDate(nextWeekEnd.getDate() + 6);
+    const dateOptions = {month:"short",day:"numeric"};
+    switchOverDates.textContent = "After the Friday 5:00 PM switch-over, availability will be requested for " +
+      nextWeekStart.toLocaleDateString(undefined,dateOptions) + " – " +
+      nextWeekEnd.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"}) + ".";
   }
   maintenance.classList.toggle("show", maintenanceActive);
   document.body.style.overflow = maintenanceActive ? "hidden" : "";
