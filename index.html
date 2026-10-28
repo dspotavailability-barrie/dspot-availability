@@ -183,19 +183,25 @@ function updateDeadline() {
   sunday.setDate(sunday.getDate()+6);
   const deadline = new Date(monday);
   const now = new Date();
-  // One-time immediate deadline: Oct 28, 2026 at 1:35:44 AM Toronto time.
+  // One-time maintenance trigger, followed by the revised deadline for the Nov 2–8 week.
   if (monday.getFullYear() === 2026 && monday.getMonth() === 10 && monday.getDate() === 2) {
-    deadline.setFullYear(2026, 9, 28);
-    deadline.setHours(1,41,0,0);
+    const maintenanceEnd = new Date(2026, 9, 29, 1, 41, 0, 0);
+    if (now < maintenanceEnd) {
+      deadline.setFullYear(2026, 9, 28);
+      deadline.setHours(1,41,0,0);
+    } else {
+      deadline.setFullYear(2026, 9, 29);
+      deadline.setHours(16,0,0,0);
+    }
   } else {
-    // Normal deadline: Friday at 1 PM, adjusted for the Friday 5 PM week switchover.
-    deadline.setDate(deadline.getDate() - (now.getDay() === 5 && now.getHours() >= 17 ? 10 : 3));
+    // Weekly deadline is Friday at 1 PM.
+    deadline.setDate(deadline.getDate() - 3);
     deadline.setHours(13,0,0,0);
   }
   const fmt = {month:"short",day:"numeric",year:"numeric"};
   document.getElementById("weekRange").textContent = "For " + monday.toLocaleDateString(undefined,fmt) + " – " + sunday.toLocaleDateString(undefined,fmt);
   document.getElementById("weekDisplay").textContent = monday.toLocaleDateString(undefined,fmt) + " – " + sunday.toLocaleDateString(undefined,fmt);
-  document.getElementById("deadlineDate").textContent = deadline.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"}) + (monday.getFullYear() === 2026 && monday.getMonth() === 10 && monday.getDate() === 2 ? " (deadline now)" : " at 1:00 PM");
+  document.getElementById("deadlineDate").textContent = deadline.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"}) + (monday.getFullYear() === 2026 && monday.getMonth() === 10 && monday.getDate() === 2 ? " at 4:00 PM" : " at 1:00 PM");
   const diff = deadline.getTime()-Date.now();
   const maintenance = document.getElementById("maintenanceScreen");
   const maintenanceActive = diff <= 0 && diff > -24 * 60 * 60 * 1000;
