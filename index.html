@@ -204,14 +204,9 @@ function updateDeadline() {
   document.getElementById("deadlineDate").textContent = deadline.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"}) + (monday.getFullYear() === 2026 && monday.getMonth() === 10 && monday.getDate() === 2 ? " at 4:00 PM" : " at 1:00 PM");
   const diff = deadline.getTime()-Date.now();
   const maintenance = document.getElementById("maintenanceScreen");
-  const maintenanceActive = diff <= 0 && diff > -24 * 60 * 60 * 1000;
-  const remainingMs = Math.max(0, 24 * 60 * 60 * 1000 + diff);
-  const maintenanceHours = document.getElementById("maintenanceHours");
-  const maintenanceMinutes = document.getElementById("maintenanceMinutes");
-  if (maintenanceHours) maintenanceHours.textContent = String(Math.floor(remainingMs / (60 * 60 * 1000)));
-  if (maintenanceMinutes) maintenanceMinutes.textContent = String(Math.floor((remainingMs % (60 * 60 * 1000)) / (60 * 1000)));
-  maintenance.classList.toggle("show", maintenanceActive);
-  document.body.style.overflow = maintenanceActive ? "hidden" : "";
+  // Maintenance mode is disabled; the form remains available until the Thursday 4 PM deadline.
+  maintenance.classList.remove("show");
+  document.body.style.overflow = "";
   const count = document.getElementById("countdown");
   const status = document.getElementById("deadlineStatus");
   if (diff <= 0) {
