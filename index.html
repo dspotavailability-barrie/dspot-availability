@@ -162,15 +162,9 @@ function dateISO(date) {
 }
 function deadlineForMonday(monday) {
   const deadline = new Date(monday);
-  // Special deadline for the Nov 2–8 availability week: Thursday, Oct 29 at 4 PM.
-  if (monday.getFullYear() === 2026 && monday.getMonth() === 10 && monday.getDate() === 2) {
-    deadline.setFullYear(2026, 9, 29);
-    deadline.setHours(16,0,0,0);
-  } else {
-    // Regular weekly deadline is Friday at 1 PM.
-    deadline.setDate(deadline.getDate() - 3);
-    deadline.setHours(13,0,0,0);
-  }
+  // Weekly availability deadline is Friday at 1 PM for every schedule week.
+  deadline.setDate(deadline.getDate() - 3);
+  deadline.setHours(13,0,0,0);
   return deadline;
 }
 function nextMonday() {
@@ -200,7 +194,7 @@ function updateDeadline() {
   const fmt = {month:"short",day:"numeric",year:"numeric"};
   document.getElementById("weekRange").textContent = "For " + monday.toLocaleDateString(undefined,fmt) + " – " + sunday.toLocaleDateString(undefined,fmt);
   document.getElementById("weekDisplay").textContent = monday.toLocaleDateString(undefined,fmt) + " – " + sunday.toLocaleDateString(undefined,fmt);
-  document.getElementById("deadlineDate").textContent = deadline.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"}) + (monday.getFullYear() === 2026 && monday.getMonth() === 10 && monday.getDate() === 2 ? " at 4:00 PM" : " at 1:00 PM");
+  document.getElementById("deadlineDate").textContent = deadline.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"}) + " at 1:00 PM";
   const rawDiff = deadline.getTime() - now.getTime();
   const maintenanceEnd = new Date(deadline.getTime() + 24 * 60 * 60 * 1000);
   const maintenanceActive = rawDiff <= 0 && now.getTime() < maintenanceEnd.getTime();
