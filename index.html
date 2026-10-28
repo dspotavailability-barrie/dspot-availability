@@ -71,7 +71,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
     <div style="font-size:42px" aria-hidden="true">🍰</div>
     <h1>D-Spot Availability Form</h1>
     <p><strong>Temporary Maintenance</strong></p>
-    <p>We’re finalising the schedule. Please wait <strong><span id="maintenanceHours">24</span> hours and <span id="maintenanceMinutes">0</span> minutes</strong> before submitting a new request.</p>
+    <p>We’re finalising the schedule. Please wait <strong><span id="maintenanceHours">0</span> hours, <span id="maintenanceMinutes">0</span> minutes and <span id="maintenanceSeconds">0</span> seconds</strong> before submitting a new request.</p>
     <p>D-Spot Dessert Café (Barrie)</p>
   </section>
 </div>
@@ -81,6 +81,8 @@ const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sun
 const hours = [["1 PM","2 PM"],["2 PM","3 PM"],["3 PM","4 PM"],["4 PM","5 PM"],["5 PM","6 PM"],["6 PM","7 PM"],["7 PM","8 PM"],["8 PM","9 PM"],["9 PM","10 PM"],["10 PM","11 PM"],["11 PM","12 AM"],["12 AM","1 AM"]];
 const selected = days.map(() => new Set());
 const dayComments = days.map(() => "");
+const maintenanceTestMinutes = Number(new URLSearchParams(window.location.search).get("maintenanceTest") || 0);
+const maintenanceTestEnd = maintenanceTestMinutes > 0 ? Date.now() + maintenanceTestMinutes * 60 * 1000 : 0;
 const grid = document.getElementById("grid");
 const shortHour = (from, to) => from.replace(" PM","").replace(" AM","") + "-" + to.replace(" PM","").replace(" AM","");
 function build() {
@@ -200,16 +202,19 @@ function updateDeadline() {
   document.getElementById("deadlineDate").textContent = deadline.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"}) + " at 1:00 PM";
   const rawDiff = deadline.getTime() - now.getTime();
   const maintenanceEnd = new Date(deadline.getTime() + 24 * 60 * 60 * 1000);
-  const maintenanceActive = rawDiff <= 0 && now.getTime() < maintenanceEnd.getTime();
+  const testModeActive = maintenanceTestEnd > 0 && now.getTime() < maintenanceTestEnd;
+  const maintenanceActive = testModeActive || (rawDiff <= 0 && now.getTime() < maintenanceEnd.getTime());
   const maintenance = document.getElementById("maintenanceScreen");
   maintenance.classList.toggle("show", maintenanceActive);
   document.body.style.overflow = maintenanceActive ? "hidden" : "";
   if (maintenanceActive) {
-    const remaining = maintenanceEnd.getTime() - now.getTime();
+    const remaining = testModeActive ? maintenanceTestEnd - now.getTime() : maintenanceEnd.getTime() - now.getTime();
     const hrs = Math.floor(remaining / 3600000);
     const mins = Math.floor((remaining % 3600000) / 60000);
+    const secs = Math.floor((remaining % 60000) / 1000);
     document.getElementById("maintenanceHours").textContent = String(hrs);
     document.getElementById("maintenanceMinutes").textContent = String(mins);
+    document.getElementById("maintenanceSeconds").textContent = String(secs);
   }
   const diff = Math.max(0, rawDiff);
   const total = Math.floor(diff / 1000);
