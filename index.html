@@ -160,18 +160,32 @@ function refresh() {
 function dateISO(date) {
   return date.getFullYear() + "-" + String(date.getMonth()+1).padStart(2,"0") + "-" + String(date.getDate()).padStart(2,"0");
 }
+function deadlineForMonday(monday) {
+  const deadline = new Date(monday);
+  // Special deadline for the Nov 2–8 availability week: Thursday, Oct 29 at 4 PM.
+  if (monday.getFullYear() === 2026 && monday.getMonth() === 10 && monday.getDate() === 2) {
+    deadline.setFullYear(2026, 9, 29);
+    deadline.setHours(16,0,0,0);
+  } else {
+    // Regular weekly deadline is Friday at 1 PM.
+    deadline.setDate(deadline.getDate() - 3);
+    deadline.setHours(13,0,0,0);
+  }
+  return deadline;
+}
 function nextMonday() {
   const now = new Date();
   const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12);
   d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-  // The week switches at Friday 5:00 PM and stays switched through the weekend.
-  // Friday before 5 PM shows next Monday; Friday 5 PM onward shows the Monday after that.
-  if ((now.getDay() === 5 && now.getHours() >= 17) || now.getDay() === 6 || now.getDay() === 0) {
-    d.setDate(d.getDate() + 14);
-  } else {
-    d.setDate(d.getDate() + 7);
+  // The upcoming schedule week remains selected through the full 24-hour
+  // maintenance window. Switch to the following week only when maintenance ends.
+  const candidate = new Date(d);
+  candidate.setDate(candidate.getDate() + 7);
+  const maintenanceEnd = new Date(deadlineForMonday(candidate).getTime() + 24 * 60 * 60 * 1000);
+  if (now.getTime() >= maintenanceEnd.getTime()) {
+    candidate.setDate(candidate.getDate() + 7);
   }
-  return d;
+  return candidate;
 }
 function getWeekStart() { return dateISO(nextMonday()); }
 function fmtDate(iso) {
@@ -181,17 +195,8 @@ function updateDeadline() {
   const monday = nextMonday();
   const sunday = new Date(monday);
   sunday.setDate(sunday.getDate()+6);
-  const deadline = new Date(monday);
   const now = new Date();
-  // Special deadline for the Nov 2–8 availability week: Thursday, Oct 29 at 4 PM.
-  if (monday.getFullYear() === 2026 && monday.getMonth() === 10 && monday.getDate() === 2) {
-    deadline.setFullYear(2026, 9, 29);
-    deadline.setHours(16,0,0,0);
-  } else {
-    // Weekly deadline is Friday at 1 PM.
-    deadline.setDate(deadline.getDate() - 3);
-    deadline.setHours(13,0,0,0);
-  }
+  const deadline = deadlineForMonday(monday);
   const fmt = {month:"short",day:"numeric",year:"numeric"};
   document.getElementById("weekRange").textContent = "For " + monday.toLocaleDateString(undefined,fmt) + " – " + sunday.toLocaleDateString(undefined,fmt);
   document.getElementById("weekDisplay").textContent = monday.toLocaleDateString(undefined,fmt) + " – " + sunday.toLocaleDateString(undefined,fmt);
