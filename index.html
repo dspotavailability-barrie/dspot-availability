@@ -183,16 +183,10 @@ function updateDeadline() {
   sunday.setDate(sunday.getDate()+6);
   const deadline = new Date(monday);
   const now = new Date();
-  // One-time maintenance trigger, followed by the revised deadline for the Nov 2–8 week.
+  // Special deadline for the Nov 2–8 availability week: Thursday, Oct 29 at 4 PM.
   if (monday.getFullYear() === 2026 && monday.getMonth() === 10 && monday.getDate() === 2) {
-    const maintenanceEnd = new Date(2026, 9, 29, 1, 41, 0, 0);
-    if (now < maintenanceEnd) {
-      deadline.setFullYear(2026, 9, 28);
-      deadline.setHours(1,41,0,0);
-    } else {
-      deadline.setFullYear(2026, 9, 29);
-      deadline.setHours(16,0,0,0);
-    }
+    deadline.setFullYear(2026, 9, 29);
+    deadline.setHours(16,0,0,0);
   } else {
     // Weekly deadline is Friday at 1 PM.
     deadline.setDate(deadline.getDate() - 3);
