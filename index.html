@@ -7,7 +7,7 @@
 <style>
 :root{--green:#8f3f54;--dark:#39252a;--muted:#846e70;--line:#f0d9d6;--bg:#fff7f2;--berry:#8f3f54;--cream:#fffaf6;--caramel:#d99a58;--chocolate:#39252a}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top left,#ffe9e2 0,transparent 36%),var(--bg);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--dark)}
-main{max-width:1120px;margin:28px auto;padding:0 16px}.header{position:relative;overflow:hidden;background:linear-gradient(125deg,#4a2633 0%,#8f3f54 56%,#c36f78 100%);color:white;border:1px solid #a85a6c;border-radius:24px;padding:30px;margin-bottom:18px;box-shadow:0 12px 30px #8f3f5420}.header:after{content:"🍰  ✦  🍓";position:absolute;right:24px;bottom:12px;font-size:clamp(25px,4vw,42px);opacity:.9;transform:rotate(-7deg)}
+main{max-width:1120px;margin:28px auto;padding:0 16px}.header{position:relative;overflow:hidden;background:linear-gradient(125deg,#4a2633 0%,#8f3f54 56%,#c36f78 100%);color:white;border:1px solid #a85a6c;border-radius:24px;padding:30px;margin-bottom:18px;box-shadow:0 12px 30px #8f3f5420}.header:after{content:"🧇  ✦  🥞";position:absolute;right:24px;bottom:12px;font-size:clamp(25px,4vw,42px);opacity:.9;transform:rotate(-7deg)}
 .maintenance-screen{display:none;position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at top left,#ffe9e2 0,transparent 36%),var(--bg);align-items:center;justify-content:center;padding:24px;text-align:center}.maintenance-screen.show{display:flex}.maintenance-card{max-width:520px;background:#fffdfb;border:1px solid var(--line);border-radius:24px;padding:32px;box-shadow:0 12px 30px #8f3f5420}.maintenance-card h1{color:var(--berry);font-size:clamp(28px,5vw,38px)}.maintenance-card p{color:var(--muted);font-size:16px}h1{margin:0 0 7px;font-family:Georgia,"Times New Roman",serif;font-size:clamp(27px,4vw,38px);letter-spacing:-.02em}.header p{margin:0;color:#ffe9e9;max-width:70%}
 .panel{background:#fffdfb;border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:0 6px 20px #6335410a}
 .fields{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}label{display:block;font-weight:650;margin-bottom:5px}input,textarea,select{font:inherit;width:100%;padding:11px;border:1px solid #cbd7cf;border-radius:9px;background:white;color:inherit}
@@ -41,7 +41,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
     <p class="hint">Select all if you are available for the whole day.</p>
   </section>
   <section class="panel">
-    <div class="legend"><span><i class="swatch" style="background:#198754"></i>Available</span><span><i class="swatch" style="background:#f3f6f4;border:1px solid #d7e1da"></i>Not selected</span></div>
+    <div class="legend"><span><i class="swatch" style="background:#8f3f54"></i>Available</span><span><i class="swatch" style="background:#f3f6f4;border:1px solid #d7e1da"></i>Not selected</span></div>
     <div class="table-wrap"><table class="availability" id="grid" aria-label="Hourly availability"></table></div>
   </section>
   <section class="panel">
@@ -68,7 +68,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 
 <div id="maintenanceScreen" class="maintenance-screen" role="status" aria-live="polite">
   <section class="maintenance-card">
-    <div style="font-size:42px" aria-hidden="true">🍰</div>
+    <div style="font-size:42px" aria-hidden="true">🧇 ✨ 🥞</div>
     <h1>D-Spot Availability Form</h1>
     <p><strong>Temporary Maintenance</strong></p>
     <p>We’re finalising the schedule. Please wait <strong><span id="maintenanceHours">0</span> hours, <span id="maintenanceMinutes">0</span> minutes and <span id="maintenanceSeconds">0</span> seconds</strong> before submitting a new request.</p>
