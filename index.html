@@ -173,10 +173,10 @@ function updateDeadline() {
   sunday.setDate(sunday.getDate()+6);
   const deadline = new Date(monday);
   const now = new Date();
-  // One-time adjustment for the week of Nov 2–8, 2026: deadline is Thursday, Oct 29 at 4 PM.
+  // One-time immediate deadline: Oct 28, 2026 at 1:35:44 AM Toronto time.
   if (monday.getFullYear() === 2026 && monday.getMonth() === 10 && monday.getDate() === 2) {
-    deadline.setDate(deadline.getDate() - 4);
-    deadline.setHours(16,0,0,0);
+    deadline.setFullYear(2026, 9, 28);
+    deadline.setHours(1,35,44,0);
   } else {
     // Normal deadline: Friday at 1 PM, adjusted for the Friday 5 PM week switchover.
     deadline.setDate(deadline.getDate() - (now.getDay() === 5 && now.getHours() >= 17 ? 10 : 3));
@@ -185,7 +185,7 @@ function updateDeadline() {
   const fmt = {month:"short",day:"numeric",year:"numeric"};
   document.getElementById("weekRange").textContent = "For " + monday.toLocaleDateString(undefined,fmt) + " – " + sunday.toLocaleDateString(undefined,fmt);
   document.getElementById("weekDisplay").textContent = monday.toLocaleDateString(undefined,fmt) + " – " + sunday.toLocaleDateString(undefined,fmt);
-  document.getElementById("deadlineDate").textContent = deadline.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"}) + (monday.getFullYear() === 2026 && monday.getMonth() === 10 && monday.getDate() === 2 ? " at 4:00 PM" : " at 1:00 PM");
+  document.getElementById("deadlineDate").textContent = deadline.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"}) + (monday.getFullYear() === 2026 && monday.getMonth() === 10 && monday.getDate() === 2 ? " (deadline now)" : " at 1:00 PM");
   const diff = deadline.getTime()-Date.now();
   const maintenance = document.getElementById("maintenanceScreen");
   const maintenanceActive = diff <= 0 && diff > -12 * 60 * 60 * 1000;
@@ -200,7 +200,7 @@ function updateDeadline() {
     const total = Math.floor(diff/1000);
     const dd = Math.floor(total/86400), hh = Math.floor((total%86400)/3600), mm = Math.floor((total%3600)/60), ss = total%60;
     count.textContent = dd > 0 ? dd+"d "+hh+"h "+mm+"m "+ss+"s" : hh+"h "+mm+"m "+ss+"s";
-    status.textContent = monday.getFullYear() === 2026 && monday.getMonth() === 10 && monday.getDate() === 2 ? "Time remaining until Thursday at 4:00 PM (Toronto time)." : "Time remaining until Friday at 1:00 PM (Toronto time).";
+    status.textContent = monday.getFullYear() === 2026 && monday.getMonth() === 10 && monday.getDate() === 2 ? "The deadline is now closed. Maintenance mode will last 12 hours." : "Time remaining until Friday at 1:00 PM (Toronto time).";
   }
 }
 function availabilityText() {
