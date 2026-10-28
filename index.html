@@ -31,7 +31,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
   <header class="header"><h1>D-Spot Dessert Café (Barrie)</h1><p>Weekly staff availability · Select every hour you are able to work.</p></header>
   <section class="panel deadline" aria-live="polite">
     <div><h2>Next week’s availability deadline</h2><div class="deadline-date" id="deadlineDate">Thursday at 4:00 PM</div><p class="hint" id="weekRange">Availability for next Monday–Sunday</p></div>
-    <div><div class="countdown" id="countdown">Calculating…</div><div class="hint" id="deadlineStatus">Time remaining until submissions are due (Toronto time).</div></div>
+    <div><div class="countdown" id="countdown">Calculating…</div><div class="hint" id="deadlineStatus"></div></div>
   </section>
   <section class="panel">
     <div class="fields">
@@ -221,10 +221,7 @@ function updateDeadline() {
   if (daysLeft > 0) parts.push(daysLeft + "d");
   parts.push(hoursLeft + "h", minutesLeft + "m", secondsLeft + "s");
   document.getElementById("countdown").textContent = parts.join(" ");
-  document.getElementById("deadlineStatus").textContent = rawDiff > 0
-    ? "Time remaining until submissions are due (Toronto time)."
-    : maintenanceActive ? "Submissions are temporarily paused while we finalise the schedule."
-    : "The 24-hour maintenance period has ended.";
+  document.getElementById("deadlineStatus").textContent = "";
 }
 function availabilityText() {
   const name = document.getElementById("name").value.trim();
