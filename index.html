@@ -82,6 +82,7 @@ const hours = [["1 PM","2 PM"],["2 PM","3 PM"],["3 PM","4 PM"],["4 PM","5 PM"],[
 const selected = days.map(() => new Set());
 const dayComments = days.map(() => "");
 const maintenanceTestMinutes = Number(new URLSearchParams(window.location.search).get("maintenanceTest") || 0);
+const forceMaintenance = true; // Manager-requested maintenance mode; set false to reopen the form.
 const maintenanceTestEnd = maintenanceTestMinutes > 0 ? Date.now() + maintenanceTestMinutes * 60 * 1000 : 0;
 const grid = document.getElementById("grid");
 const shortHour = (from, to) => from.replace(" PM","").replace(" AM","") + "-" + to.replace(" PM","").replace(" AM","");
@@ -203,7 +204,7 @@ function updateDeadline() {
   const rawDiff = deadline.getTime() - now.getTime();
   const maintenanceEnd = new Date(deadline.getTime() + 24 * 60 * 60 * 1000);
   const testModeActive = maintenanceTestEnd > 0 && now.getTime() < maintenanceTestEnd;
-  const maintenanceActive = testModeActive || (rawDiff <= 0 && now.getTime() < maintenanceEnd.getTime());
+  const maintenanceActive = forceMaintenance || testModeActive || (rawDiff <= 0 && now.getTime() < maintenanceEnd.getTime());
   const maintenance = document.getElementById("maintenanceScreen");
   maintenance.classList.toggle("show", maintenanceActive);
   document.body.style.overflow = maintenanceActive ? "hidden" : "";
