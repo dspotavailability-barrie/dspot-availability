@@ -204,9 +204,7 @@ function updateDeadline() {
   const rawDiff = deadline.getTime() - now.getTime();
   const maintenanceEnd = new Date(deadline.getTime() + 24 * 60 * 60 * 1000);
   const testModeActive = maintenanceTestEnd > 0 && now.getTime() < maintenanceTestEnd;
-  // One-time early maintenance: Nov 6, 2026 at 11:15 AM until the normal Saturday 1 PM reopening.
-  const oneTimeMaintenanceActive = now.getTime() >= new Date("2026-11-06T11:15:00-05:00").getTime() && now.getTime() < maintenanceEnd.getTime();
-  const maintenanceActive = testModeActive || oneTimeMaintenanceActive || (rawDiff <= 0 && now.getTime() < maintenanceEnd.getTime());
+  const maintenanceActive = testModeActive || (rawDiff <= 0 && now.getTime() < maintenanceEnd.getTime());
   const maintenance = document.getElementById("maintenanceScreen");
   maintenance.classList.toggle("show", maintenanceActive);
   document.body.style.overflow = maintenanceActive ? "hidden" : "";
