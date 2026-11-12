@@ -30,7 +30,7 @@ input, textarea { -webkit-user-select:text; user-select:text; }
 <main>
   <header class="header"><h1>D-Spot Dessert Café (Barrie)</h1><p>Weekly staff availability · Select every hour you are able to work.</p></header>
   <section class="panel deadline" aria-live="polite">
-    <div><h2>Next week’s availability deadline</h2><div class="deadline-date" id="deadlineDate">Thursday at 4:00 PM</div><p class="hint" id="weekRange">Availability for next Monday–Sunday</p></div>
+    <div><h2>Next week’s availability deadline</h2><div class="deadline-date" id="deadlineDate">Thursday at 5:00 PM</div><p class="hint" id="weekRange">Availability for next Monday–Sunday</p></div>
     <div><div class="countdown" id="countdown">Calculating…</div><div class="hint" id="deadlineStatus"></div></div>
   </section>
   <section class="panel">
@@ -168,20 +168,19 @@ function dateISO(date) {
 }
 function deadlineForMonday(monday) {
   const deadline = new Date(monday);
-  // Weekly availability deadline is Friday at 1 PM for every schedule week.
-  deadline.setDate(deadline.getDate() - 3);
-  deadline.setHours(13,0,0,0);
+  // Weekly availability deadline is Thursday at 5 PM for every schedule week.
+  deadline.setDate(deadline.getDate() - 4);
+  deadline.setHours(17,0,0,0);
   return deadline;
 }
 function nextMonday() {
   const now = new Date();
   const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12);
   d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-  // The upcoming schedule week remains selected through the full 24-hour
-  // maintenance window. Switch to the following week only when maintenance ends.
+  // Keep the upcoming schedule week selected through maintenance, then switch Friday at 2 PM.
   const candidate = new Date(d);
   candidate.setDate(candidate.getDate() + 7);
-  const maintenanceEnd = new Date(deadlineForMonday(candidate).getTime() + 24 * 60 * 60 * 1000);
+  const maintenanceEnd = new Date(deadlineForMonday(candidate).getTime() + 21 * 60 * 60 * 1000);
   if (now.getTime() >= maintenanceEnd.getTime()) {
     candidate.setDate(candidate.getDate() + 7);
   }
@@ -200,9 +199,9 @@ function updateDeadline() {
   const fmt = {month:"short",day:"numeric",year:"numeric"};
   document.getElementById("weekRange").textContent = "For " + monday.toLocaleDateString(undefined,fmt) + " – " + sunday.toLocaleDateString(undefined,fmt);
   document.getElementById("weekDisplay").textContent = monday.toLocaleDateString(undefined,fmt) + " – " + sunday.toLocaleDateString(undefined,fmt);
-  document.getElementById("deadlineDate").textContent = deadline.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"}) + " at 1:00 PM";
+  document.getElementById("deadlineDate").textContent = deadline.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"}) + " at 5:00 PM";
   const rawDiff = deadline.getTime() - now.getTime();
-  const maintenanceEnd = new Date(deadline.getTime() + 24 * 60 * 60 * 1000);
+  const maintenanceEnd = new Date(deadline.getTime() + 21 * 60 * 60 * 1000);
   const testModeActive = maintenanceTestEnd > 0 && now.getTime() < maintenanceTestEnd;
   const maintenanceActive = testModeActive || (rawDiff <= 0 && now.getTime() < maintenanceEnd.getTime());
   const maintenance = document.getElementById("maintenanceScreen");
