@@ -40,25 +40,25 @@ footer{text-align:center;color:var(--muted);font-weight:800;font-size:12px;paddi
 <body>
 <header><div class="waffle">🧇 ✨ 🥞</div><h1>D-Spot Dessert Café</h1><p>Weekly Staff Scheduler · Barrie</p></header>
 <main>
-<section class="toolbar"><div><div class="week">Weekly schedule · November 16–22, 2026</div><div class="muted">Employee dropdowns show only people available for the entire selected shift.</div></div><div class="actions"><button class="soft" id="clear">Clear schedule</button><button class="primary" id="print">Print schedule</button></div></section>
+<section class="toolbar"><div><div class="week">Weekly schedule · November 16–22, 2026 · Updated submissions</div><div class="muted">Employee dropdowns show only people available for the entire selected shift.</div></div><div class="actions"><button class="soft" id="clear">Clear schedule</button><button class="primary" id="print">Print schedule</button></div></section>
 <section class="stats"><div class="stat"><strong id="shiftCount">0</strong><span>Assigned shifts</span></div><div class="stat"><strong id="totalHours">0.0</strong><span>Total scheduled hours</span></div><div class="stat"><strong id="assignedCount">0</strong><span>Employees scheduled</span></div></section>
 <section class="days" id="days"></section>
 <section class="bottom">
-<div class="panel"><h3>Availability loaded</h3><div class="muted">Only submitted and available employees appear in shift selectors.</div><div class="employee-list" id="employees"></div><div class="notice">Tisha Gohil has no submission Monday–Wednesday, so she is hidden on those days. Employees marked not available are also hidden.</div></div>
+<div class="panel"><h3>Availability loaded</h3><div class="muted">Only submitted and available employees appear in shift selectors.</div><div class="employee-list" id="employees"></div><div class="notice">Tisha Gohil is excluded because her latest submission covers November 9–15, not this week. Jenish's week is provisionally treated as November 16–22. Arjint's Sunday end time uses his comment: 8:30 PM.</div></div>
 <div class="panel"><h3>Hours by employee</h3><div class="hours" id="hours"></div><div class="notice">Shift hours are calculated automatically. Overlapping shifts for the same employee are flagged.</div></div>
 </section>
 </main><footer>Webpage managed by Harsh P</footer>
 <script>
 const dayNames=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-const employees=['Diya Patel','Patel Jenish','Himanshi Dangol','Arjint','Tisha Gohil'];
+const employees=['Arjint','Himanshi Dangol','Diya Patel','Patel Jenish'];
 const availability={
 'Monday':{'Diya Patel':[960,1380],'Patel Jenish':[960,1440]},
 'Tuesday':{'Himanshi Dangol':[1020,1500],'Diya Patel':[1080,1380]},
 'Wednesday':{'Arjint':[840,1500],'Himanshi Dangol':[960,1380]},
-'Thursday':{'Arjint':[1140,1500],'Himanshi Dangol':[1020,1380],'Diya Patel':[1080,1440],'Patel Jenish':[1080,1440],'Tisha Gohil':[1020,1350]},
-'Friday':{'Diya Patel':[960,1500],'Patel Jenish':[960,1500],'Tisha Gohil':[780,1410]},
-'Saturday':{'Patel Jenish':[900,1500],'Tisha Gohil':[780,1410]},
-'Sunday':{'Arjint':[960,1230],'Himanshi Dangol':[900,1500],'Patel Jenish':[900,1440],'Tisha Gohil':[780,1290]}
+'Thursday':{'Arjint':[1140,1500],'Himanshi Dangol':[1020,1380],'Diya Patel':[1080,1440],'Patel Jenish':[1080,1440]},
+'Friday':{'Diya Patel':[960,1500],'Patel Jenish':[960,1500]},
+'Saturday':{'Patel Jenish':[900,1500]},
+'Sunday':{'Arjint':[960,1230],'Himanshi Dangol':[900,1500],'Patel Jenish':[900,1440]}
 };
 let schedule=Object.fromEntries(dayNames.map(d=>[d,[]]));
 const times=[];for(let h=13;h<=25;h++){for(const m of [0,30]){if(h===25&&m>0)continue;let hh=h%24;let ap=hh>=12?'PM':'AM';let hr=hh%12||12;times.push({v:h*60+m,l:hr+':'+String(m).padStart(2,'0')+' '+ap});}}
