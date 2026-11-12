@@ -40,23 +40,34 @@ footer{text-align:center;color:var(--muted);font-weight:800;font-size:12px;paddi
 <body>
 <header><div class="waffle">🧇 ✨ 🥞</div><h1>D-Spot Dessert Café</h1><p>Weekly Staff Scheduler · Barrie</p></header>
 <main>
-<section class="toolbar"><div><div class="week">Weekly schedule builder</div><div class="muted">Choose an employee and assign their shift for each day.</div></div><div class="actions"><button class="soft" id="clear">Clear schedule</button><button class="primary" id="print">Print schedule</button></div></section>
+<section class="toolbar"><div><div class="week">Weekly schedule · November 16–22, 2026</div><div class="muted">Employee dropdowns show only people available for the entire selected shift.</div></div><div class="actions"><button class="soft" id="clear">Clear schedule</button><button class="primary" id="print">Print schedule</button></div></section>
 <section class="stats"><div class="stat"><strong id="shiftCount">0</strong><span>Assigned shifts</span></div><div class="stat"><strong id="totalHours">0.0</strong><span>Total scheduled hours</span></div><div class="stat"><strong id="assignedCount">0</strong><span>Employees scheduled</span></div></section>
 <section class="days" id="days"></section>
 <section class="bottom">
-<div class="panel"><h3>Employee list</h3><div class="muted">Edit this demo list by adding employees below.</div><div class="employee-list" id="employees"></div><div class="addrow"><input id="newEmployee" placeholder="Enter employee name"><button class="primary" id="addEmployee">Add</button></div><div class="notice">This preview starts with sample names from your previous staff scheduling examples. You can add or remove names before building the roster.</div></div>
+<div class="panel"><h3>Availability loaded</h3><div class="muted">Only submitted and available employees appear in shift selectors.</div><div class="employee-list" id="employees"></div><div class="notice">Tisha Gohil has no submission Monday–Wednesday, so she is hidden on those days. Employees marked not available are also hidden.</div></div>
 <div class="panel"><h3>Hours by employee</h3><div class="hours" id="hours"></div><div class="notice">Shift hours are calculated automatically. Overlapping shifts for the same employee are flagged.</div></div>
 </section>
 </main><footer>Webpage managed by Harsh P</footer>
 <script>
 const dayNames=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-let employees=['Himanshi Dangol','Arjint','Patel Jenish','Tisha'];
+const employees=['Diya Patel','Patel Jenish','Himanshi Dangol','Arjint','Tisha Gohil'];
+const availability={
+'Monday':{'Diya Patel':[960,1380],'Patel Jenish':[960,1440]},
+'Tuesday':{'Himanshi Dangol':[1020,1500],'Diya Patel':[1080,1380]},
+'Wednesday':{'Arjint':[840,1500],'Himanshi Dangol':[960,1380]},
+'Thursday':{'Arjint':[1140,1500],'Himanshi Dangol':[1020,1380],'Diya Patel':[1080,1440],'Patel Jenish':[1080,1440],'Tisha Gohil':[1020,1350]},
+'Friday':{'Diya Patel':[960,1500],'Patel Jenish':[960,1500],'Tisha Gohil':[780,1410]},
+'Saturday':{'Patel Jenish':[900,1500],'Tisha Gohil':[780,1410]},
+'Sunday':{'Arjint':[960,1230],'Himanshi Dangol':[900,1500],'Patel Jenish':[900,1440],'Tisha Gohil':[780,1290]}
+};
 let schedule=Object.fromEntries(dayNames.map(d=>[d,[]]));
 const times=[];for(let h=13;h<=25;h++){for(const m of [0,30]){if(h===25&&m>0)continue;let hh=h%24;let ap=hh>=12?'PM':'AM';let hr=hh%12||12;times.push({v:h*60+m,l:hr+':'+String(m).padStart(2,'0')+' '+ap});}}
 function options(selected){return times.map(t=>'<option value="'+t.v+'" '+(Number(selected)===t.v?'selected':'')+'>'+t.l+'</option>').join('')}
 function timeEndOptions(start,end){return times.filter(t=>t.v>Number(start)).map(t=>'<option value="'+t.v+'" '+(Number(end)===t.v?'selected':'')+'>'+t.l+'</option>').join('')}
+function availableEmployees(day,start,end){return employees.filter(name=>{const window=availability[day]?.[name];return window&&Number(start)>=window[0]&&Number(end)<=window[1]&&Number(end)>Number(start)})}
+function employeeOptions(day,shift){const eligible=availableEmployees(day,shift.start,shift.end);return '<option value="">Select available employee</option>'+eligible.map(e=>'<option value="'+safe(e)+'" '+(shift.employee===e?'selected':'')+'>'+safe(e)+'</option>').join('')}
 function safe(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function render(){document.getElementById('days').innerHTML=dayNames.map(day=>'<article class="day"><div class="dayhead"><h2>'+day+'</h2><small>'+schedule[day].length+' shift(s)</small></div><div class="shifts">'+(schedule[day].length?schedule[day].map((s,i)=>'<div class="shift"><select aria-label="Employee" onchange="changeShift(\''+day+'\','+i+',\'employee\',this.value)"><option value="">Select employee</option>'+employees.map(e=>'<option '+(s.employee===e?'selected':'')+'>'+safe(e)+'</option>').join('')+'</select><select aria-label="Start time" onchange="changeShift(\''+day+'\','+i+',\'start\',this.value)">'+options(s.start)+'</select><select aria-label="End time" onchange="changeShift(\''+day+'\','+i+',\'end\',this.value)">'+timeEndOptions(s.start,s.end)+'</select><button class="remove" title="Remove shift" onclick="removeShift(\''+day+'\','+i+')">×</button></div>').join(''):'<div class="empty">No shifts assigned yet</div>')+'</div><div class="dayfoot"><button class="add" onclick="addShift(\''+day+'\')">＋ Add shift</button></div>'+conflicts(day)+'</article>').join('');
+function render(){document.getElementById('days').innerHTML=dayNames.map(day=>'<article class="day"><div class="dayhead"><h2>'+day+'</h2><small>'+schedule[day].length+' shift(s)</small></div><div class="shifts">'+(schedule[day].length?schedule[day].map((s,i)=>'<div class="shift"><select aria-label="Employee" onchange="changeShift(\''+day+'\','+i+',\'employee\',this.value)"><option value="">Select employee</option>'+employeeOptions(day,s)+'</select><select aria-label="Start time" onchange="changeShift(\''+day+'\','+i+',\'start\',this.value)">'+options(s.start)+'</select><select aria-label="End time" onchange="changeShift(\''+day+'\','+i+',\'end\',this.value)">'+timeEndOptions(s.start,s.end)+'</select><button class="remove" title="Remove shift" onclick="removeShift(\''+day+'\','+i+')">×</button></div>').join(''):'<div class="empty">No shifts assigned yet</div>')+'</div><div class="dayfoot"><button class="add" onclick="addShift(\''+day+'\')">＋ Add shift</button></div>'+conflicts(day)+'</article>').join('');
 document.getElementById('employees').innerHTML=employees.map(e=>'<span class="chip">'+safe(e)+'</span>').join('');
 const totals=Object.fromEntries(employees.map(e=>[e,0]));let count=0,total=0;
 dayNames.forEach(d=>schedule[d].forEach(s=>{if(s.employee&&s.end>s.start){let h=(s.end-s.start)/60;totals[s.employee]=(totals[s.employee]||0)+h;total+=h;count++}}));
@@ -66,9 +77,7 @@ document.getElementById('hours').innerHTML=employees.map(e=>'<div class="hourrow
 function conflicts(day){let issues=[];let rows=schedule[day];rows.forEach((a,i)=>{if(!a.employee||a.end<=a.start)return;rows.forEach((b,j)=>{if(j<=i||a.employee!==b.employee||b.end<=b.start)return;if(a.start<b.end&&b.start<a.end)issues.push(safe(a.employee)+' has overlapping shifts');})});return issues.length?'<div class="conflict">⚠ '+[...new Set(issues)].join(' · ')+'</div>':''}
 function addShift(d){schedule[d].push({employee:'',start:780,end:1020});render()}
 function removeShift(d,i){schedule[d].splice(i,1);render()}
-function changeShift(d,i,k,v){schedule[d][i][k]=k==='employee'?v:Number(v);if(k==='start'&&schedule[d][i].end<=Number(v)){schedule[d][i].end=times.find(t=>t.v>Number(v))?.v||1500}render()}
-document.getElementById('addEmployee').onclick=()=>{let n=document.getElementById('newEmployee').value.trim();if(n&&!employees.some(e=>e.toLowerCase()===n.toLowerCase())){employees.push(n);document.getElementById('newEmployee').value='';render()}};
-document.getElementById('newEmployee').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('addEmployee').click()});
+function changeShift(d,i,k,v){schedule[d][i][k]=k==='employee'?v:Number(v);if(k==='start'&&schedule[d][i].end<=Number(v)){schedule[d][i].end=times.find(t=>t.v>Number(v))?.v||1500}if(k==='start'||k==='end'){if(schedule[d][i].employee&&!availableEmployees(d,schedule[d][i].start,schedule[d][i].end).includes(schedule[d][i].employee))schedule[d][i].employee=''}render()}
 document.getElementById('clear').onclick=()=>{if(confirm('Clear all shifts from this draft?')){schedule=Object.fromEntries(dayNames.map(d=>[d,[]]));render()}};
 document.getElementById('print').onclick=()=>window.print();
 render();
