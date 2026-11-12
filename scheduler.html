@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>D-Spot | Staff Scheduler</title>
+<style>
+:root{--ink:#382b32;--muted:#806e76;--berry:#8f3155;--berry2:#6f2342;--cream:#fffaf5;--pink:#f8e8ed;--line:#ead9df;--gold:#e5b96e;--green:#e8f5ec;--red:#fff0ed}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#fffaf5,#f8edf0);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink)}
+header{background:linear-gradient(115deg,#762644,#a74668);color:white;padding:28px 20px 24px;text-align:center;box-shadow:0 5px 22px #51203422}
+header .waffle{font-size:26px;letter-spacing:8px}h1{font-size:26px;margin:8px 0 4px}header p{margin:0;color:#f9e9ef;font-size:14px}
+main{max-width:1200px;margin:22px auto;padding:0 16px 40px}
+.toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:white;border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:0 5px 20px #52263a0b}
+.week{font-weight:750}.muted{font-size:12px;color:var(--muted);margin-top:3px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}button{border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer;font-size:13px}
+.primary{background:var(--berry);color:white}.primary:hover{background:var(--berry2)}.soft{background:var(--pink);color:var(--berry)}.danger{background:#fff0ed;color:#a33d34}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px}.stat strong{display:block;font-size:22px;color:var(--berry)}.stat span{font-size:12px;color:var(--muted)}
+.days{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.day{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 5px 20px #52263a0a}
+.dayhead{display:flex;justify-content:space-between;align-items:center;padding:13px 15px;background:#fff5f7;border-bottom:1px solid var(--line)}
+.dayhead h2{font-size:15px;margin:0}.dayhead small{color:var(--muted)}
+.shifts{padding:10px 12px;display:grid;gap:9px;min-height:65px}
+.shift{display:grid;grid-template-columns:minmax(120px,1.2fr) 1fr 1fr 32px;gap:7px;align-items:center}
+select{width:100%;min-width:0;border:1px solid #e6d5dc;border-radius:9px;padding:9px 7px;background:#fff;color:var(--ink);font:inherit;font-size:12px}
+.remove{background:#fff0ed;color:#a33d34;padding:8px 0}
+.dayfoot{padding:0 12px 12px}.add{width:100%;background:#fbf0f3;color:var(--berry);border:1px dashed #d7a9ba;padding:9px}
+.empty{color:#a28d96;font-size:12px;text-align:center;padding:12px}
+.bottom{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:15px}
+.panel h3{font-size:15px;margin:0 0 10px}.employee-list{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
+.chip{background:var(--pink);color:var(--berry);border-radius:20px;padding:6px 10px;font-size:12px;font-weight:650}
+.addrow{display:flex;gap:8px}.addrow input{flex:1;min-width:0;border:1px solid var(--line);border-radius:9px;padding:9px}
+.hours{display:grid;gap:7px}.hourrow{display:flex;justify-content:space-between;border-bottom:1px solid #f1e7eb;padding:5px 0;font-size:13px}.hourrow b{color:var(--berry)}
+.notice{font-size:12px;color:var(--muted);line-height:1.5;margin-top:12px}
+.conflict{color:#a33d34;background:var(--red);padding:8px 10px;border-radius:9px;font-size:12px;margin:8px 12px 12px}
+footer{text-align:center;color:var(--muted);font-weight:800;font-size:12px;padding:22px}
+@media(max-width:720px){.days{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr 1fr}.shift{grid-template-columns:1fr 1fr 1fr 30px}.bottom{grid-template-columns:1fr}h1{font-size:22px}}
+</style>
+</head>
+<body>
+<header><div class="waffle">🧇 ✨ 🥞</div><h1>D-Spot Dessert Café</h1><p>Weekly Staff Scheduler · Barrie</p></header>
+<main>
+<section class="toolbar"><div><div class="week">Weekly schedule builder</div><div class="muted">Choose an employee and assign their shift for each day.</div></div><div class="actions"><button class="soft" id="clear">Clear schedule</button><button class="primary" id="print">Print schedule</button></div></section>
+<section class="stats"><div class="stat"><strong id="shiftCount">0</strong><span>Assigned shifts</span></div><div class="stat"><strong id="totalHours">0.0</strong><span>Total scheduled hours</span></div><div class="stat"><strong id="assignedCount">0</strong><span>Employees scheduled</span></div></section>
+<section class="days" id="days"></section>
+<section class="bottom">
+<div class="panel"><h3>Employee list</h3><div class="muted">Edit this demo list by adding employees below.</div><div class="employee-list" id="employees"></div><div class="addrow"><input id="newEmployee" placeholder="Enter employee name"><button class="primary" id="addEmployee">Add</button></div><div class="notice">This preview starts with sample names from your previous staff scheduling examples. You can add or remove names before building the roster.</div></div>
+<div class="panel"><h3>Hours by employee</h3><div class="hours" id="hours"></div><div class="notice">Shift hours are calculated automatically. Overlapping shifts for the same employee are flagged.</div></div>
+</section>
+</main><footer>Webpage managed by Harsh P</footer>
+<script>
+const dayNames=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+let employees=['Himanshi Dangol','Arjint','Patel Jenish','Tisha'];
+let schedule=Object.fromEntries(dayNames.map(d=>[d,[]]));
+const times=[];for(let h=13;h<=25;h++){for(const m of [0,30]){if(h===25&&m>0)continue;let hh=h%24;let ap=hh>=12?'PM':'AM';let hr=hh%12||12;times.push({v:h*60+m,l:hr+':'+String(m).padStart(2,'0')+' '+ap});}}
+function options(selected){return times.map(t=>'<option value="'+t.v+'" '+(Number(selected)===t.v?'selected':'')+'>'+t.l+'</option>').join('')}
+function timeEndOptions(start,end){return times.filter(t=>t.v>Number(start)).map(t=>'<option value="'+t.v+'" '+(Number(end)===t.v?'selected':'')+'>'+t.l+'</option>').join('')}
+function safe(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function render(){document.getElementById('days').innerHTML=dayNames.map(day=>'<article class="day"><div class="dayhead"><h2>'+day+'</h2><small>'+schedule[day].length+' shift(s)</small></div><div class="shifts">'+(schedule[day].length?schedule[day].map((s,i)=>'<div class="shift"><select aria-label="Employee" onchange="changeShift(\''+day+'\','+i+',\'employee\',this.value)"><option value="">Select employee</option>'+employees.map(e=>'<option '+(s.employee===e?'selected':'')+'>'+safe(e)+'</option>').join('')+'</select><select aria-label="Start time" onchange="changeShift(\''+day+'\','+i+',\'start\',this.value)">'+options(s.start)+'</select><select aria-label="End time" onchange="changeShift(\''+day+'\','+i+',\'end\',this.value)">'+timeEndOptions(s.start,s.end)+'</select><button class="remove" title="Remove shift" onclick="removeShift(\''+day+'\','+i+')">×</button></div>').join(''):'<div class="empty">No shifts assigned yet</div>')+'</div><div class="dayfoot"><button class="add" onclick="addShift(\''+day+'\')">＋ Add shift</button></div>'+conflicts(day)+'</article>').join('');
+document.getElementById('employees').innerHTML=employees.map(e=>'<span class="chip">'+safe(e)+'</span>').join('');
+const totals=Object.fromEntries(employees.map(e=>[e,0]));let count=0,total=0;
+dayNames.forEach(d=>schedule[d].forEach(s=>{if(s.employee&&s.end>s.start){let h=(s.end-s.start)/60;totals[s.employee]=(totals[s.employee]||0)+h;total+=h;count++}}));
+document.getElementById('shiftCount').textContent=count;document.getElementById('totalHours').textContent=total.toFixed(1);document.getElementById('assignedCount').textContent=Object.values(totals).filter(v=>v>0).length;
+document.getElementById('hours').innerHTML=employees.map(e=>'<div class="hourrow"><span>'+safe(e)+'</span><b>'+((totals[e]||0).toFixed(1))+' hrs</b></div>').join('')||'<div class="empty">Add employees to begin</div>';
+}
+function conflicts(day){let issues=[];let rows=schedule[day];rows.forEach((a,i)=>{if(!a.employee||a.end<=a.start)return;rows.forEach((b,j)=>{if(j<=i||a.employee!==b.employee||b.end<=b.start)return;if(a.start<b.end&&b.start<a.end)issues.push(safe(a.employee)+' has overlapping shifts');})});return issues.length?'<div class="conflict">⚠ '+[...new Set(issues)].join(' · ')+'</div>':''}
+function addShift(d){schedule[d].push({employee:'',start:780,end:1020});render()}
+function removeShift(d,i){schedule[d].splice(i,1);render()}
+function changeShift(d,i,k,v){schedule[d][i][k]=k==='employee'?v:Number(v);if(k==='start'&&schedule[d][i].end<=Number(v)){schedule[d][i].end=times.find(t=>t.v>Number(v))?.v||1500}render()}
+document.getElementById('addEmployee').onclick=()=>{let n=document.getElementById('newEmployee').value.trim();if(n&&!employees.some(e=>e.toLowerCase()===n.toLowerCase())){employees.push(n);document.getElementById('newEmployee').value='';render()}};
+document.getElementById('newEmployee').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('addEmployee').click()});
+document.getElementById('clear').onclick=()=>{if(confirm('Clear all shifts from this draft?')){schedule=Object.fromEntries(dayNames.map(d=>[d,[]]));render()}};
+document.getElementById('print').onclick=()=>window.print();
+render();
+</script></body></html>
